@@ -254,6 +254,73 @@ code:not(pre code) {
   }
 }
 
+
+/* ============================================================
+   Landing Hero Layout
+   ============================================================ */
+.nf-hero {
+  min-height: calc(100svh - 56px);
+  padding: 56px 16px 72px;
+  display: flex;
+  align-items: center;
+}
+
+.nf-hero-content {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.nf-hero-badge { margin-bottom: 22px; }
+
+.nf-hero-title {
+  font-size: 44px;
+  line-height: 1.06;
+  margin-bottom: 16px;
+}
+
+.nf-hero-copy {
+  max-width: 560px;
+  font-size: 17px;
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+
+.nf-hero-actions { max-width: 320px; }
+
+.nf-hero-mockup {
+  width: min(100%, 520px);
+  margin-top: 38px;
+  opacity: 0.82;
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.45);
+}
+
+@media (min-width: 768px) {
+  .nf-hero { padding: 64px 24px 76px; }
+  .nf-hero-content { max-width: 760px; }
+  .nf-hero-title { font-size: 58px; }
+  .nf-hero-copy { font-size: 18px; max-width: 600px; margin-bottom: 26px; }
+  .nf-hero-actions { max-width: none; }
+  .nf-hero-mockup { width: min(100%, 560px); margin-top: 40px; }
+}
+
+@media (max-width: 520px) {
+  .nf-hero {
+    min-height: auto;
+    padding: 44px 16px 58px;
+    align-items: flex-start;
+  }
+
+  .nf-hero-badge { margin-bottom: 18px; }
+  .nf-hero-title { font-size: 36px; line-height: 1.08; margin-bottom: 14px; }
+  .nf-hero-copy { font-size: 15px; line-height: 1.65; margin-bottom: 22px; }
+  .nf-hero-actions { max-width: 300px; }
+  .nf-hero-mockup { width: min(100%, 360px); margin-top: 34px; opacity: 0.72; }
+}
+
 /* ============================================================
    TipTap / ProseMirror Editor Content Styles
    ============================================================ */

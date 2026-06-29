@@ -91,7 +91,7 @@ export function LandingPage() {
         <div style={{
           maxWidth:       '1152px',
           margin:         '0 auto',
-          padding:        '0 24px',
+          padding:        '0 clamp(16px, 4vw, 24px)',
           height:         '100%',
           display:        'flex',
           alignItems:     'center',
@@ -116,7 +116,7 @@ export function LandingPage() {
           </div>
 
           {/* Center nav links */}
-          <div className="hidden md:flex gap-7 items-center">
+          <div className="hidden md:flex items-center gap-6 lg:gap-8">
             {NAV_LINKS.map(link => (
               <button
                 key={link.id}
@@ -143,7 +143,7 @@ export function LandingPage() {
               Kayıt Ol
             </Button>
             <button
-              className="md:hidden ml-2 p-1 text-[#9A9A9A]"
+              className="md:hidden ml-1 flex h-9 w-9 items-center justify-center rounded-[8px] text-[#9A9A9A] hover:bg-[#111111] hover:text-white"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -209,7 +209,7 @@ export function LandingPage() {
           ══════════════════════════════════════════════════════ */}
       <section
         id="hero"
-        className="relative pt-[80px] pb-[96px] px-6 sm:px-8 text-center bg-[#000000] overflow-hidden"
+        className="nf-hero relative overflow-hidden bg-[#000000] text-center"
       >
         {/* Background video */}
         <video
@@ -251,47 +251,45 @@ export function LandingPage() {
         }} />
 
         {/* Hero content */}
-        <div style={{ position: 'relative', zIndex: 3, maxWidth: '800px', margin: '0 auto' }} className="text-center w-full flex flex-col items-center">
+        <div className="nf-hero-content" style={{ position: 'relative', zIndex: 3 }}>
           {/* Status badge */}
-          <div style={{
+          <div className="nf-hero-badge" style={{
             display: 'inline-flex', alignItems: 'center', gap: '8px',
             padding: '6px 14px', borderRadius: '9999px',
             backgroundColor: 'rgba(17,17,17,0.85)',
             backdropFilter: 'blur(8px)',
             border: '1px solid #2A2A2A',
-            fontSize: '12px', color: '#9A9A9A', marginBottom: '32px',
+            fontSize: '12px', lineHeight: 1.4, color: '#9A9A9A', maxWidth: '100%',
           }}>
             <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#22C55E', display: 'inline-block' }} />
             Ücretsiz, reklamsız, her zaman
           </div>
 
           {/* Headline */}
-          <h1 className="text-4xl md:text-[56px] font-bold leading-[1.1] tracking-tight mb-5 text-white text-center">
+          <h1 className="nf-hero-title font-bold tracking-tight text-white text-center">
             Düşüncelerin için<br />
             <span className="text-gradient-blue">sade bir yer.</span>
           </h1>
 
           {/* Sub-headline */}
-          <p className="text-[16px] md:text-[18px] text-[#9A9A9A] max-w-[520px] mb-8 leading-relaxed text-center mx-auto">
+          <p className="nf-hero-copy mx-auto text-center text-[#9A9A9A]">
             Düşüncelerini düzenlemek isteyen herkes için —
             AI destekli, görsel zengin, kilitlenme yok.
           </p>
 
           {/* CTA buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 items-center justify-center w-full max-w-[300px] sm:max-w-none mx-auto">
-            <Button variant="primary" size="lg" onClick={() => navigate('/giris')} id="hero-cta-primary" className="gap-2 w-full sm:w-auto" style={{ padding: '14px 32px' }}>
+          <div className="nf-hero-actions mx-auto flex w-full flex-col items-center justify-center gap-3 sm:flex-row">
+            <Button variant="primary" size="lg" onClick={() => navigate('/giris')} id="hero-cta-primary" className="w-full gap-2 sm:w-auto" style={{ padding: '14px 32px' }}>
               Ücretsiz Başla <ArrowRight size={16} />
             </Button>
           </div>
 
           {/* App mockup */}
-          <div style={{
-            marginTop:       '56px',
+          <div className="nf-hero-mockup" style={{
             backgroundColor: '#0D0D0D',
             border:          '1px solid #232323',
-            borderRadius:    '16px',
+            borderRadius:    '14px',
             overflow:        'hidden',
-            maxWidth:        '768px',
             marginLeft:      'auto',
             marginRight:     'auto',
           }}>
@@ -492,7 +490,7 @@ export function LandingPage() {
         >
           <div style={SECTION_BG_GLOW} />
           <div style={{ maxWidth: '560px', margin: '0 auto', position: 'relative' }}>
-            <h2 style={{ fontSize: '48px', fontWeight: 700, color: '#ffffff', marginBottom: '16px', letterSpacing: '-0.03em' }}>
+            <h2 className="text-[34px] sm:text-[42px] md:text-[48px]" style={{ fontWeight: 700, color: '#ffffff', marginBottom: '16px', letterSpacing: 0, lineHeight: 1.1 }}>
               Bugün başla.
             </h2>
             <p style={{ fontSize: '18px', color: '#9A9A9A', marginBottom: '40px' }}>
@@ -503,12 +501,12 @@ export function LandingPage() {
               size="lg"
               onClick={() => navigate('/giris')}
               id="cta-register-free"
-              className="gap-2"
-              style={{ fontSize: '16px', padding: '0 32px', height: '48px' }}
+              className="w-full gap-2 sm:w-auto"
+              style={{ fontSize: '16px', padding: '12px 32px' }}
             >
               Kayıt Ol — Ücretsiz <ArrowRight size={18} />
             </Button>
-            <div style={{ marginTop: '32px', display: 'flex', justifyContent: 'center', gap: '24px' }}>
+            <div className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-3">
               {['Kredi kartı yok', 'Reklam yok', 'Sınırsız not'].map(item => (
                 <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#555555' }}>
                   <Check size={12} color="#22C55E" />

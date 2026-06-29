@@ -114,7 +114,7 @@ export function AuthPage() {
       </div>
 
       {/* ---- Right Form Panel ---- */}
-      <div className="flex-1 lg:max-w-[480px] flex flex-col items-center justify-center px-6 py-8 md:px-8 md:py-12">
+      <div className="flex-1 lg:max-w-[500px] flex flex-col items-center justify-center px-5 py-8 sm:px-6 md:px-10 md:py-12">
         {/* Mobile brand */}
         <div className="lg:hidden flex items-center gap-2 mb-8">
           <div className="w-7 h-7 rounded-[8px] bg-[#4D8DFF] flex items-center justify-center">
@@ -123,9 +123,9 @@ export function AuthPage() {
           <span className="text-[16px] font-semibold text-white">NoteForge</span>
         </div>
 
-        <div className="w-full max-w-[380px]">
+        <div className="w-full max-w-[400px]">
           {/* Heading */}
-          <div className="mb-8">
+          <div className="mb-7">
             <h1 className="text-[24px] font-semibold text-white mb-1">
               {mode === 'login' ? 'Tekrar hoş geldin.' : 'Hesabını oluştur.'}
             </h1>
@@ -137,7 +137,7 @@ export function AuthPage() {
           {/* Google OAuth */}
           <Button
             variant="ghost"
-            className="w-full mb-4 gap-3"
+            className="w-full gap-3"
             onClick={handleGoogle}
             disabled={loading}
             id="btn-google-auth"
@@ -209,12 +209,12 @@ export function AuthPage() {
                   onChange={e => setPassword(e.target.value)}
                   autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
                   required
-                  className="w-full h-10 pl-3 pr-10 rounded-[8px] bg-[#0D0D0D] border border-[#232323] text-[15px] text-white placeholder:text-[#555555] transition-colors focus:outline-none focus:border-[#4D8DFF] focus:ring-1 focus:ring-[#4D8DFF]"
+                  className="w-full min-h-10 rounded-[8px] border border-[#232323] bg-[#0D0D0D] py-2 pl-3 pr-11 text-[15px] leading-5 text-white placeholder:text-[#555555] transition-colors focus:outline-none focus:border-[#4D8DFF] focus:ring-1 focus:ring-[#4D8DFF]"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#555555] hover:text-[#9A9A9A] transition-colors"
+                  className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-[6px] text-[#555555] transition-colors hover:bg-[#111111] hover:text-[#9A9A9A]"
                   aria-label={showPassword ? 'Şifreyi gizle' : 'Şifreyi göster'}
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -236,10 +236,10 @@ export function AuthPage() {
             )}
 
             {mode === 'login' && (
-              <div className="flex justify-end -mt-2">
+              <div className="flex justify-end -mt-1">
                 <button
                   type="button"
-                  className="text-[13px] text-[#4D8DFF] hover:underline"
+                  className="rounded-[6px] px-1 py-1 text-[13px] leading-5 text-[#4D8DFF] hover:underline"
                   onClick={() => {/* TODO: forgot password page */}}
                 >
                   Parolamı unuttum
@@ -252,7 +252,7 @@ export function AuthPage() {
               variant="primary"
               size="lg"
               loading={loading}
-              className="w-full mt-1"
+              className="w-full mt-2"
               id={mode === 'login' ? 'btn-login' : 'btn-register'}
             >
               {mode === 'login' ? 'Giriş Yap' : 'Kayıt Ol'}
@@ -260,7 +260,7 @@ export function AuthPage() {
           </form>
 
           {/* Switch mode */}
-          <p className="mt-6 text-center text-[14px] text-[#9A9A9A]">
+          <p className="mt-5 text-center text-[14px] leading-6 text-[#9A9A9A]">
             {mode === 'login' ? (
               <>Hesabın yok mu?{' '}
                 <button onClick={() => switchMode('register')} className="text-[#4D8DFF] hover:underline font-medium">
@@ -277,7 +277,7 @@ export function AuthPage() {
           </p>
 
           {/* Reassurance */}
-          <p className="mt-8 text-center text-[11px] text-[#555555]">
+          <p className="mt-4 text-center text-[11px] leading-5 text-[#555555]">
             Ücretsiz, reklamsız, sonsuz.
           </p>
         </div>

@@ -131,8 +131,8 @@ export function SettingsPage() {
   }
 
   return (
-    <div className="w-full max-w-[800px] mx-auto p-5 md:p-10">
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+    <div style={{ width: '100%', maxWidth: '840px', margin: '0 auto', padding: '24px clamp(16px, 4vw, 40px)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
         <button 
           onClick={() => navigate('/notlar')}
           style={{
@@ -153,7 +153,7 @@ export function SettingsPage() {
 
       {/* Tabs */}
       <div 
-        style={{ display: 'flex', gap: '8px', marginBottom: '32px', borderBottom: '1px solid var(--color-border)', paddingBottom: '12px', overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        style={{ display: 'flex', gap: '8px', marginBottom: '32px', borderBottom: '1px solid var(--color-border)', paddingBottom: '12px', overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
         className="[&::-webkit-scrollbar]:hidden"
       >
         <TabButton active={activeTab === 'account'} onClick={() => setActiveTab('account')}>
@@ -193,7 +193,7 @@ export function SettingsPage() {
           <>
             <Card style={{ padding: '24px' }}>
               <h2 style={{ fontSize: '18px', fontWeight: 500, marginBottom: '16px' }}>Profil</h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '400px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', width: '100%', maxWidth: '440px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', color: 'var(--color-text-2)', marginBottom: '8px' }}>
                     {t('settings.account.email')}
@@ -206,7 +206,7 @@ export function SettingsPage() {
                   </label>
                   <Input value={displayName} onChange={e => setDisplayName(e.target.value)} />
                 </div>
-                <Button variant="primary" onClick={handleSaveProfile} loading={loading} style={{ width: 'fit-content' }}>
+                <Button variant="primary" onClick={handleSaveProfile} loading={loading} style={{ width: '100%', maxWidth: '260px' }}>
                   {t('settings.account.saveProfile')}
                 </Button>
               </div>
@@ -214,10 +214,10 @@ export function SettingsPage() {
 
             <Card style={{ padding: '24px' }}>
               <h2 style={{ fontSize: '18px', fontWeight: 500, marginBottom: '16px' }}>{t('settings.account.changePassword')}</h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '400px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', width: '100%', maxWidth: '440px' }}>
                 <Input type="password" placeholder={t('settings.account.newPassword')} value={newPassword} onChange={e => setNewPassword(e.target.value)} />
                 <Input type="password" placeholder={t('settings.account.confirmPassword')} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
-                <Button variant="primary" onClick={handleChangePassword} loading={loading} style={{ width: 'fit-content' }}>
+                <Button variant="primary" onClick={handleChangePassword} loading={loading} style={{ width: '100%', maxWidth: '260px' }}>
                   {t('settings.account.updatePassword')}
                 </Button>
               </div>
@@ -230,7 +230,7 @@ export function SettingsPage() {
               <p style={{ fontSize: '14px', color: 'var(--color-text-2)', marginBottom: '16px' }}>
                 Hesabınızı sildiğinizde tüm notlarınız, klasörleriniz ve tercihleriniz kalıcı olarak silinir.
               </p>
-              <Button variant="danger" onClick={() => setDeleteModalOpen(true)} style={{ width: 'fit-content' }}>
+              <Button variant="danger" onClick={() => setDeleteModalOpen(true)} style={{ width: '100%', maxWidth: '160px' }}>
                 {t('settings.account.deleteAccount')}
               </Button>
             </Card>
@@ -311,7 +311,7 @@ export function SettingsPage() {
               <Divider />
 
               <h3 style={{ fontSize: '16px', fontWeight: 500, margin: '24px 0 16px' }}>{t('settings.typo.theme')}</h3>
-              <div style={{ display: 'flex', gap: '12px' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
                 <ThemeButton active={localPrefs.theme === 'dark'} onClick={() => updatePreference('theme', 'dark')} bg="#0D0D0D" text="#E8E8E8" label={t('settings.typo.dark')} />
                 <ThemeButton active={localPrefs.theme === 'light'} onClick={() => updatePreference('theme', 'light')} bg="#FAFAFA" text="#111111" label={t('settings.typo.light')} />
                 <ThemeButton active={localPrefs.theme === 'sepia'} onClick={() => updatePreference('theme', 'sepia')} bg="#F8F3E8" text="#3D2B1F" label={t('settings.typo.sepia')} />
@@ -337,7 +337,7 @@ export function SettingsPage() {
             <p style={{ fontSize: '14px', color: 'var(--color-text-2)', marginBottom: '24px' }}>
               {t('settings.lang.note')}
             </p>
-            <div style={{ display: 'flex', gap: '12px' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
               <Button 
                 variant={localPrefs.language === 'tr' ? 'primary' : 'ghost'} 
                 onClick={() => { updatePreference('language', 'tr'); setTimeout(() => window.location.reload(), 300) }}
@@ -403,7 +403,7 @@ export function SettingsPage() {
         <p style={{ marginBottom: '24px', fontSize: '14px', lineHeight: 1.6 }}>
           {t('settings.account.deleteWarning')}
         </p>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-end', gap: '12px' }}>
           <Button variant="ghost" onClick={() => setDeleteModalOpen(false)} disabled={loading}>
             {t('action.cancel')}
           </Button>
@@ -422,13 +422,13 @@ function TabButton({ children, active, onClick }: { children: React.ReactNode, a
     <button
       onClick={onClick}
       style={{
-        padding: '8px 16px',
+        padding: '9px 16px',
         fontSize: '14px',
         fontWeight: active ? 500 : 400,
         color: active ? 'var(--color-text)' : 'var(--color-text-2)',
         backgroundColor: active ? 'var(--color-surface-mid)' : 'transparent',
         border: 'none',
-        borderRadius: '6px',
+        borderRadius: '8px',
         cursor: 'pointer',
         transition: 'all 150ms',
         whiteSpace: 'nowrap'
@@ -477,9 +477,9 @@ function ThemeButton({ active, onClick, bg, text, label }: { active: boolean, on
 
 function ShortcutRow({ keys, desc }: { keys: string[], desc: string }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '12px', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', paddingBottom: '12px', borderBottom: '1px solid var(--color-border-subtle)' }}>
       <span style={{ fontSize: '14px', color: 'var(--color-text-2)' }}>{desc}</span>
-      <div style={{ display: 'flex', gap: '4px' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
         {keys.map(k => (
           <kbd key={k} style={{
             padding: '4px 8px',

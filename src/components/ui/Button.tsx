@@ -8,8 +8,8 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = 'primary', size = 'md', loading, disabled, children, ...props }, ref) => {
-    const base = 'inline-flex items-center justify-center gap-2 font-medium whitespace-nowrap transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#4D8DFF] focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed select-none shrink-0'
+  ({ className, variant = 'primary', size = 'md', loading, disabled, children, style, ...props }, ref) => {
+    const base = 'inline-flex max-w-full min-w-0 items-center justify-center gap-2 text-center font-medium leading-tight whitespace-normal transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#4D8DFF] focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed select-none shrink-0'
 
     const variants = {
       primary:      'bg-[#4D8DFF] text-white hover:bg-[#3D7AEE] active:bg-[#2D6ADE] rounded-[8px]',
@@ -26,9 +26,9 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     }
 
     const explicitStyles = variant === 'icon' ? { flexShrink: 0 } : {
-      sm: { paddingLeft: 20, paddingRight: 20, paddingTop: 10, paddingBottom: 10, fontSize: 13, flexShrink: 0 },
-      md: { paddingLeft: 20, paddingRight: 20, paddingTop: 10, paddingBottom: 10, fontSize: 14, flexShrink: 0 },
-      lg: { paddingLeft: 28, paddingRight: 28, paddingTop: 12, paddingBottom: 12, fontSize: 15, flexShrink: 0 },
+      sm: { minHeight: 36, paddingLeft: 18, paddingRight: 18, paddingTop: 8, paddingBottom: 8, fontSize: 13, flexShrink: 0 },
+      md: { minHeight: 40, paddingLeft: 20, paddingRight: 20, paddingTop: 10, paddingBottom: 10, fontSize: 14, flexShrink: 0 },
+      lg: { minHeight: 48, paddingLeft: 28, paddingRight: 28, paddingTop: 12, paddingBottom: 12, fontSize: 15, flexShrink: 0 },
     }[size]
 
     return (
@@ -40,7 +40,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           variant === 'icon' ? iconSizes[size] : '',
           className
         )}
-        style={{ ...explicitStyles, ...props.style }}
+        style={{ ...explicitStyles, ...style }}
         disabled={disabled || loading}
         {...props}
       >

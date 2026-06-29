@@ -283,7 +283,7 @@ export function NoteEditorPage() {
       onMouseDown={e => e.preventDefault()} // CRITICAL: Prevent focus steal on click so selection remains active
       disabled={disabled}
       style={{
-        width: '32px', height: '32px', borderRadius: '8px',
+        width: '34px', height: '34px', borderRadius: '8px',
         background: active ? '#1A1A2E' : 'none',
         border: active ? '1px solid #4D8DFF44' : 'none',
         cursor: disabled ? 'not-allowed' : 'pointer',
@@ -347,9 +347,9 @@ export function NoteEditorPage() {
         <div style={{
             display:         'flex',
             alignItems:      'center',
-            height:          '48px',
-            padding:         '0 12px',
-            gap:             '4px',
+            minHeight:       '52px',
+            padding:         '8px 12px',
+            gap:             '6px',
             backgroundColor: '#080808',
             borderBottom:    '1px solid #232323',
             flexShrink:      0,
@@ -357,11 +357,11 @@ export function NoteEditorPage() {
             scrollbarWidth:  'none', // for firefox
             msOverflowStyle: 'none', // for IE
           }}
-          className="[&::-webkit-scrollbar]:hidden"
+          className="[&::-webkit-scrollbar]:hidden scroll-px-3"
         >
           {/* Hamburger Menu (Mobile Only) */}
           <button
-            className="md:hidden p-1 mr-1 rounded-md text-[#9A9A9A] hover:bg-[#111111] hover:text-white transition-colors shrink-0"
+            className="md:hidden mr-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] text-[#9A9A9A] transition-colors hover:bg-[#111111] hover:text-white"
             onClick={() => setIsSidebarOpen(true)}
             title="Menü"
           >
@@ -503,7 +503,7 @@ export function NoteEditorPage() {
 
         {/* ── Editor scrollable area ───────────────────── */}
         <div className="editor-surface" style={{ flex: 1, overflowY: 'auto' }}>
-          <div className="mx-auto max-w-[720px] px-5 py-8 md:px-8 md:py-10">
+          <div className="mx-auto w-full max-w-[720px] px-4 py-7 sm:px-5 md:px-8 md:py-10">
 
             {/* Title */}
             <input
@@ -514,14 +514,14 @@ export function NoteEditorPage() {
               placeholder="Not başlığı…"
               style={{
                 width: '100%', background: 'transparent', border: 'none', outline: 'none',
-                fontSize: '28px', fontWeight: 600, color: 'var(--editor-text)',
-                marginBottom: '8px', lineHeight: 1.2, fontFamily: 'inherit',
+                fontSize: '26px', fontWeight: 600, color: 'var(--editor-text)',
+                marginBottom: '10px', lineHeight: 1.2, fontFamily: 'inherit', minWidth: 0,
               }}
             />
 
             {/* ── Metadata row ────────────────────────── */}
             <div style={{
-              display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap',
+              display: 'flex', alignItems: 'center', gap: '8px 10px', flexWrap: 'wrap',
               marginBottom: '24px', paddingBottom: '20px', borderBottom: '1px solid var(--editor-border)',
             }}>
               <span style={{ fontSize: '12px', color: '#555555' }}>
@@ -691,8 +691,8 @@ export function NoteEditorPage() {
 
         {/* ── Status Bar ────────────────────────────────── */}
         <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
-          gap: '16px', height: '32px', padding: '0 24px',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap',
+          gap: '6px 16px', minHeight: '36px', padding: '6px 16px',
           borderTop: '1px solid var(--editor-border)', flexShrink: 0,
           backgroundColor: 'var(--editor-surface)',
         }}>
@@ -701,7 +701,7 @@ export function NoteEditorPage() {
             `${editor?.getText().length ?? 0} karakter`,
             `${Math.max(1, Math.ceil(wordCount / 200))} dk okuma`,
           ].map((txt, i) => (
-            <span key={i} style={{ fontSize: '11px', color: '#555555' }}>{txt}</span>
+            <span key={i} style={{ fontSize: '11px', lineHeight: 1.4, color: '#555555', whiteSpace: 'nowrap' }}>{txt}</span>
           ))}
         </div>
       </div>

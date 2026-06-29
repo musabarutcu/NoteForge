@@ -25,9 +25,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           id={inputId}
           className={cn(
-            'w-full h-10 px-3 rounded-[8px]',
+            'w-full min-h-10 px-3 py-2 rounded-[8px]',
             'bg-[#0D0D0D] border border-[#232323]',
-            'text-[15px] text-white placeholder:text-[#555555]',
+            'text-[15px] leading-5 text-white placeholder:text-[#555555]',
             'transition-colors duration-150',
             'focus:outline-none focus:border-[#4D8DFF] focus:ring-1 focus:ring-[#4D8DFF]',
             'disabled:opacity-50 disabled:cursor-not-allowed',
