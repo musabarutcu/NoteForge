@@ -107,6 +107,8 @@ interface SidebarProps {
   activeTagId?:     string | null
   onFolderSelect?:  (id: string | null) => void
   onTagSelect?:     (id: string | null) => void
+  isOpen?:          boolean
+  onClose?:         () => void
 }
 
 export function Sidebar({
@@ -115,6 +117,8 @@ export function Sidebar({
   activeTagId,
   onFolderSelect,
   onTagSelect,
+  isOpen = false,
+  onClose,
 }: SidebarProps) {
   const navigate    = useNavigate()
   const location    = useLocation()
@@ -173,6 +177,7 @@ export function Sidebar({
   const handleFolderClick = (folderId: string) => {
     onTagSelect?.(null)      // clear tag filter
     onFolderSelect?.(folderId)
+    onClose?.()
     navigate('/notlar')
   }
 
@@ -185,12 +190,14 @@ export function Sidebar({
       onFolderSelect?.(undefined as unknown as null) // clear folder filter
       onTagSelect?.(tagId)
     }
+    onClose?.()
     navigate('/notlar')
   }
 
   const handleAllNotesClick = () => {
     onFolderSelect?.(null)
     onTagSelect?.(null)
+    onClose?.()
     navigate('/notlar')
   }
 
@@ -214,15 +221,27 @@ export function Sidebar({
   const isAllNotesActive = activeFolderId === null && !activeTagId && location.pathname === '/notlar'
 
   return (
-    <aside style={{
-      width:           '260px',
-      flexShrink:      0,
-      height:          '100%',
-      display:         'flex',
-      flexDirection:   'column',
-      backgroundColor: '#0D0D0D',
-      borderRight:     '1px solid #232323',
-    }}>
+    <>
+      {/* Mobile Backdrop */}
+      {isOpen && (
+        <div 
+          className="md:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+          onClick={onClose}
+        />
+      )}
+      <aside 
+        className={`
+          fixed md:relative inset-y-0 left-0 z-50
+          w-[280px] md:w-[280px]
+          flex flex-col h-full shrink-0
+          transform transition-transform duration-300 ease-in-out
+          ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+        `}
+        style={{
+          backgroundColor: '#0D0D0D',
+          borderRight:     '1px solid #1A1A1A',
+        }}
+      >
 
       {/* ── Header: Brand + User avatar ─────────────────── */}
       <div style={{
@@ -572,5 +591,6 @@ export function Sidebar({
         </span>
       </div>
     </aside>
+    </>
   )
 }

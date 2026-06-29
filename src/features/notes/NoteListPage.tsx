@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, Grid, List, Clock, ArrowUpDown, Trash2, FolderOpen } from 'lucide-react'
+import { Search, Grid, List, Clock, ArrowUpDown, Trash2, FolderOpen, Menu } from 'lucide-react'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
@@ -19,6 +19,7 @@ export function NoteListPage() {
   // Active filter state — shared between Sidebar and the note list
   const [activeFolderId, setActiveFolderId] = useState<string | null | undefined>(undefined)
   const [activeTagId, setActiveTagId]       = useState<string | null>(null)
+  const [isSidebarOpen, setIsSidebarOpen]   = useState(false)
 
   // useNotes respects both filters
   const { notes, loading, error, addNote, removeNote, reload } = useNotes({
@@ -110,6 +111,8 @@ export function NoteListPage() {
         activeTagId={activeTagId}
         onFolderSelect={handleFolderSelect}
         onTagSelect={handleTagSelect}
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
       />
 
       {/* ── Main content area ──────────────────────────────── */}
@@ -130,7 +133,14 @@ export function NoteListPage() {
         }}>
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '16px' }}>
             {/* Title + count */}
-            <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <button
+                className="md:hidden p-2 -ml-2 rounded-lg text-[#9A9A9A] hover:bg-[#111111] hover:text-white transition-colors"
+                onClick={() => setIsSidebarOpen(true)}
+              >
+                <Menu size={20} />
+              </button>
+              <div>
               <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#ffffff', lineHeight: 1.1 }}>
                 {sectionTitle()}
               </h1>
@@ -139,6 +149,7 @@ export function NoteListPage() {
                   {notes.length} not
                 </span>
               )}
+            </div>
             </div>
 
             {/* Controls: sort + view toggle */}
@@ -257,11 +268,8 @@ export function NoteListPage() {
             <EmptyNoteList onNewNote={handleNewNote} hasSearch={false} />
           ) : viewMode === 'grid' ? (
             /* ── Grid view ── */
-            <div style={{
-              display:               'grid',
-              gridTemplateColumns:   'repeat(auto-fill, minmax(240px, 1fr))',
-              gap:                   '12px',
-            }}>
+            /* ── Grid view ── */
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {filtered.map(note => (
                 <NoteCard
                   key={note.id}
