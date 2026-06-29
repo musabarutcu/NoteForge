@@ -503,7 +503,14 @@ export function NoteEditorPage() {
 
         {/* ── Editor scrollable area ───────────────────── */}
         <div className="editor-surface" style={{ flex: 1, overflowY: 'auto' }}>
-          <div className="mx-auto w-full max-w-[720px] px-4 py-7 sm:px-5 md:px-8 md:py-10">
+          <div 
+            className="px-4 py-7 sm:px-5 md:px-8 md:py-10"
+            style={{
+              width: '100%',
+              maxWidth: '720px',
+              margin: '0 auto',
+            }}
+          >
 
             {/* Title */}
             <input
