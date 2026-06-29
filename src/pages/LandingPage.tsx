@@ -215,33 +215,34 @@ export function LandingPage() {
       {/* Mobile menu — portaled outside nav so backdrop-filter doesn't trap fixed positioning */}
       {mobileMenuOpen && createPortal(
         <div
-          className="md:hidden fixed inset-0 z-[200] bg-[#000000] flex flex-col overflow-y-auto"
+          className="md:hidden fixed inset-0 z-[200] flex flex-col overflow-y-auto animate-in fade-in duration-300"
+          style={{ backgroundColor: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
           role="dialog"
           aria-modal="true"
           aria-label="Mobil menü"
         >
-          <div className="flex items-center justify-between px-6 border-b border-[#1A1A1A]" style={{ height: '56px', minHeight: '56px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div className="flex items-center justify-between px-6 border-b border-[#1A1A1A]/50" style={{ height: '72px', minHeight: '72px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <div style={{
-                width: '28px', height: '28px', borderRadius: '8px',
+                width: '32px', height: '32px', borderRadius: '8px',
                 backgroundColor: '#111111', border: '1px solid #232323', display: 'flex',
                 alignItems: 'center', justifyContent: 'center', flexShrink: 0,
               }}>
-                <Zap size={14} color="#4D8DFF" fill="#4D8DFF" />
+                <Zap size={16} color="#4D8DFF" fill="#4D8DFF" />
               </div>
-              <span style={{ fontSize: '16px', fontWeight: 600, color: '#ffffff', letterSpacing: '-0.02em' }}>NoteForge</span>
+              <span style={{ fontSize: '18px', fontWeight: 600, color: '#ffffff', letterSpacing: '-0.02em' }}>NoteForge</span>
             </div>
             <button
               type="button"
               aria-label="Menüyü kapat"
               onClick={closeMobileMenu}
-              className="p-1 text-[#9A9A9A] hover:text-white touch-manipulation"
+              className="p-2 -mr-2 rounded-[8px] text-[#9A9A9A] hover:bg-[#111111] hover:text-white touch-manipulation transition-colors"
             >
-              <X size={24} />
+              <X size={28} />
             </button>
           </div>
 
-          <div className="flex flex-col px-6 pt-4 pb-8">
+          <div className="flex flex-col px-4 pt-6 pb-12 gap-2">
             {NAV_LINKS.map(link => (
               <button
                 key={link.id}
@@ -250,18 +251,19 @@ export function LandingPage() {
                   closeMobileMenu()
                   scrollTo(link.id)
                 }}
-                className="text-left text-[20px] text-[#ffffff] font-medium py-5 border-b border-[#1A1A1A]"
+                className="text-left text-[22px] text-[#ffffff] font-semibold py-4 px-4 rounded-[12px] hover:bg-[#111111] transition-colors"
               >
                 {link.label}
               </button>
             ))}
+            <div className="h-[1px] bg-[#1A1A1A] my-4 mx-4" />
             <button
               type="button"
               onClick={() => {
                 closeMobileMenu()
                 navigate('/giris')
               }}
-              className="text-left text-[20px] text-[#4D8DFF] font-medium py-5 border-b border-[#1A1A1A]"
+              className="text-left text-[22px] text-[#4D8DFF] font-semibold py-4 px-4 rounded-[12px] hover:bg-[#111111]/80 transition-colors"
             >
               Giriş Yap
             </button>

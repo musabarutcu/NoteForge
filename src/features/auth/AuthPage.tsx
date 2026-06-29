@@ -114,7 +114,7 @@ export function AuthPage() {
       </div>
 
       {/* ---- Right Form Panel ---- */}
-      <div className="flex-1 lg:max-w-[500px] flex flex-col items-center justify-center px-5 py-8 sm:px-6 md:px-10 md:py-12">
+      <div className="flex-1 w-full flex flex-col items-center justify-center px-6 py-10 lg:max-w-[500px] mx-auto">
         {/* Mobile brand */}
         <div className="lg:hidden flex items-center gap-2 mb-8">
           <div className="w-7 h-7 rounded-[8px] bg-[#4D8DFF] flex items-center justify-center">
@@ -123,7 +123,7 @@ export function AuthPage() {
           <span className="text-[16px] font-semibold text-white">NoteForge</span>
         </div>
 
-        <div className="w-full max-w-[400px]">
+        <div className="w-full max-w-[360px] sm:max-w-[400px]">
           {/* Heading */}
           <div className="mb-7">
             <h1 className="text-[24px] font-semibold text-white mb-1">
