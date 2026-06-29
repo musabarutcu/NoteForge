@@ -1,7 +1,8 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   FileText, Zap, Folder, Download,
-  BookOpen, Code2, PenTool, Check, ArrowRight,
+  BookOpen, Code2, PenTool, Check, ArrowRight, Menu, X
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
@@ -44,6 +45,7 @@ const NAV_LINKS = [
 /* ─── Component ───────────────────────────────────────────── */
 export function LandingPage() {
   const navigate = useNavigate()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
     <div style={{ backgroundColor: '#000000', color: '#ffffff', minHeight: '100vh' }}>
@@ -90,7 +92,7 @@ export function LandingPage() {
           </div>
 
           {/* Center nav links */}
-          <div style={{ display: 'flex', gap: '28px', alignItems: 'center' }}>
+          <div className="hidden md:flex gap-7 items-center">
             {NAV_LINKS.map(link => (
               <button
                 key={link.id}
@@ -110,14 +112,44 @@ export function LandingPage() {
 
           {/* CTA buttons */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-            <Button variant="ghost" size="sm" onClick={() => navigate('/giris')} id="nav-login" style={{ whiteSpace: 'nowrap' }}>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/giris')} id="nav-login" className="hidden sm:inline-flex" style={{ whiteSpace: 'nowrap' }}>
               Giriş Yap
             </Button>
             <Button variant="primary" size="sm" onClick={() => navigate('/giris')} id="nav-register" style={{ whiteSpace: 'nowrap' }}>
               Kayıt Ol
             </Button>
+            <button
+              className="md:hidden ml-2 p-1 text-[#9A9A9A]"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile menu dropdown */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-black/95 backdrop-blur-md border-b border-[#1A1A1A] p-4 flex flex-col gap-4">
+            {NAV_LINKS.map(link => (
+              <button
+                key={link.id}
+                onClick={() => {
+                  setMobileMenuOpen(false)
+                  scrollTo(link.id)
+                }}
+                className="text-left text-[16px] text-[#9A9A9A] hover:text-white py-2"
+              >
+                {link.label}
+              </button>
+            ))}
+            <button 
+              onClick={() => navigate('/giris')}
+              className="text-left text-[16px] text-[#9A9A9A] hover:text-white py-2 sm:hidden"
+            >
+              Giriş Yap
+            </button>
+          </div>
+        )}
       </nav>
 
       {/* Push content below fixed nav */}
@@ -191,31 +223,20 @@ export function LandingPage() {
           </div>
 
           {/* Headline */}
-          <h1 style={{
-            fontSize:      'clamp(36px, 6vw, 60px)',
-            fontWeight:    700,
-            lineHeight:    1.1,
-            letterSpacing: '-0.03em',
-            marginBottom:  '20px',
-            color:         '#ffffff',
-          }}>
+          <h1 className="text-4xl md:text-[56px] font-bold leading-tight tracking-tight mb-5 text-white">
             Düşüncelerin için<br />
             <span className="text-gradient-blue">sade bir yer.</span>
           </h1>
 
           {/* Sub-headline */}
-          <p style={{
-            fontSize: '18px', color: '#9A9A9A',
-            maxWidth: '520px', margin: '0 auto 36px',
-            lineHeight: 1.7,
-          }}>
+          <p className="text-[16px] md:text-[18px] text-[#9A9A9A] max-w-[520px] mx-auto mb-9 leading-relaxed">
             Düşüncelerini düzenlemek isteyen herkes için —
             AI destekli, görsel zengin, kilitlenme yok.
           </p>
 
           {/* CTA buttons */}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', flexWrap: 'wrap' }}>
-            <Button variant="primary" size="lg" onClick={() => navigate('/giris')} id="hero-cta-primary" className="gap-2">
+          <div className="flex flex-col sm:flex-row justify-center gap-3 w-full max-w-[300px] sm:max-w-none mx-auto">
+            <Button variant="primary" size="lg" onClick={() => navigate('/giris')} id="hero-cta-primary" className="gap-2 w-full sm:w-auto">
               Ücretsiz Başla <ArrowRight size={16} />
             </Button>
           </div>
@@ -293,11 +314,7 @@ export function LandingPage() {
                 Sadece ihtiyacın olan her şey.
               </h2>
             </div>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-              gap: '16px',
-            }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {FEATURES.map(f => (
                 <Card key={f.title} style={{ padding: '24px', display: 'flex', flexDirection: 'column', height: '100%' }}>
                   <div style={{
@@ -331,7 +348,7 @@ export function LandingPage() {
                 Üç adım, hepsi bu.
               </h2>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '32px' }}>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {STEPS.map(step => (
                 <div key={step.n}>
                   <div style={{
@@ -416,11 +433,7 @@ export function LandingPage() {
 
         {/* ── FOOTER ──────────────────────────────────────────── */}
         <footer style={{ borderTop: '1px solid #1A1A1A', padding: '32px 24px' }}>
-          <div style={{
-            maxWidth: '1152px', margin: '0 auto',
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            flexWrap: 'wrap', gap: '16px',
-          }}>
+          <div className="max-w-[1152px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <div style={{
                 width: '24px', height: '24px', borderRadius: '6px',
@@ -432,7 +445,7 @@ export function LandingPage() {
               <span style={{ fontSize: '14px', fontWeight: 600 }}>NoteForge</span>
             </div>
             <p style={{ fontSize: '12px', color: '#555555' }}>© 2026 NoteForge. Tüm hakları saklıdır.</p>
-            <div style={{ display: 'flex', gap: '16px' }}>
+            <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
               {['Gizlilik', 'Kullanım Koşulları'].map(l => (
                 <a key={l} href="#" style={{ fontSize: '12px', color: '#555555', textDecoration: 'none' }}>{l}</a>
               ))}
