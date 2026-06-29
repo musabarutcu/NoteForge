@@ -119,10 +119,10 @@ export function LandingPage() {
 
           {/* CTA buttons */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-            <Button variant="ghost" size="sm" onClick={() => navigate('/giris')} id="nav-login" className="hidden sm:inline-flex" style={{ padding: '10px 24px', fontSize: '14px', whiteSpace: 'nowrap', height: '40px' }}>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/giris')} id="nav-login" className="hidden sm:inline-flex" style={{ padding: '8px 20px', fontSize: '13px', whiteSpace: 'nowrap', height: '36px' }}>
               Giriş Yap
             </Button>
-            <Button variant="primary" size="sm" onClick={() => navigate('/giris')} id="nav-register" style={{ padding: '10px 24px', fontSize: '14px', whiteSpace: 'nowrap', height: '40px' }}>
+            <Button variant="primary" size="sm" onClick={() => navigate('/giris')} id="nav-register" style={{ padding: '8px 24px', fontSize: '13px', whiteSpace: 'nowrap', height: '36px' }}>
               Kayıt Ol
             </Button>
             <button
@@ -249,13 +249,13 @@ export function LandingPage() {
           </div>
 
           {/* Headline */}
-          <h1 className="text-4xl md:text-[56px] font-bold leading-[1.1] tracking-tight mb-5 text-white w-full">
+          <h1 className="text-4xl md:text-[56px] font-bold leading-[1.1] tracking-tight mb-5 text-white text-center">
             Düşüncelerin için<br />
             <span className="text-gradient-blue">sade bir yer.</span>
           </h1>
 
           {/* Sub-headline */}
-          <p className="text-[16px] md:text-[18px] text-[#9A9A9A] max-w-[520px] mb-8 leading-relaxed w-full">
+          <p className="text-[16px] md:text-[18px] text-[#9A9A9A] max-w-[520px] mb-8 leading-relaxed text-center mx-auto">
             Düşüncelerini düzenlemek isteyen herkes için —
             AI destekli, görsel zengin, kilitlenme yok.
           </p>
