@@ -1,5 +1,18 @@
-import { forwardRef, type ButtonHTMLAttributes } from 'react'
+import { forwardRef, type ButtonHTMLAttributes, type CSSProperties } from 'react'
 import { cn } from '@/lib/utils'
+
+function mergeButtonStyles(base: CSSProperties, override?: CSSProperties): CSSProperties {
+  if (!override) return base
+  const merged = { ...base, ...override }
+  if (override.padding != null) {
+    delete merged.paddingTop
+    delete merged.paddingBottom
+    delete merged.paddingLeft
+    delete merged.paddingRight
+  }
+  if (override.height != null) delete merged.minHeight
+  return merged
+}
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'ghost' | 'danger' | 'danger-ghost' | 'icon'
@@ -40,7 +53,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           variant === 'icon' ? iconSizes[size] : '',
           className
         )}
-        style={{ ...explicitStyles, ...style }}
+        style={mergeButtonStyles(explicitStyles, style)}
         disabled={disabled || loading}
         {...props}
       >

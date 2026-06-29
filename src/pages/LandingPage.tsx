@@ -489,11 +489,11 @@ export function LandingPage() {
           style={{ padding: '80px 24px', borderTop: '1px solid #1A1A1A', textAlign: 'center', position: 'relative' }}
         >
           <div style={SECTION_BG_GLOW} />
-          <div style={{ maxWidth: '560px', margin: '0 auto', position: 'relative' }}>
-            <h2 className="text-[34px] sm:text-[42px] md:text-[48px]" style={{ fontWeight: 700, color: '#ffffff', marginBottom: '16px', letterSpacing: 0, lineHeight: 1.1 }}>
+          <div style={{ maxWidth: '560px', margin: '0 auto', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <h2 className="text-[34px] sm:text-[42px] md:text-[48px]" style={{ fontWeight: 700, color: '#ffffff', marginBottom: '16px', letterSpacing: 0, lineHeight: 1.1, textAlign: 'center' }}>
               Bugün başla.
             </h2>
-            <p style={{ fontSize: '18px', color: '#9A9A9A', marginBottom: '40px' }}>
+            <p style={{ fontSize: '18px', color: '#9A9A9A', marginBottom: '40px', textAlign: 'center' }}>
               Ücretsiz, reklamsız, her zaman.
             </p>
             <Button
@@ -501,12 +501,12 @@ export function LandingPage() {
               size="lg"
               onClick={() => navigate('/giris')}
               id="cta-register-free"
-              className="w-full gap-2 sm:w-auto"
-              style={{ fontSize: '16px', padding: '12px 32px' }}
+              className="gap-2 whitespace-nowrap"
+              style={{ fontSize: '16px', paddingLeft: 32, paddingRight: 32 }}
             >
               Kayıt Ol — Ücretsiz <ArrowRight size={18} />
             </Button>
-            <div className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-3">
+            <div style={{ marginTop: '32px', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '24px' }}>
               {['Kredi kartı yok', 'Reklam yok', 'Sınırsız not'].map(item => (
                 <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#555555' }}>
                   <Check size={12} color="#22C55E" />
