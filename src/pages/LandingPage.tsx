@@ -47,6 +47,15 @@ export function LandingPage() {
   const navigate = useNavigate()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
+  // Body scroll lock for mobile menu
+  import('react').then(({ useEffect }) => {
+    useEffect(() => {
+      if (mobileMenuOpen) document.body.style.overflow = 'hidden'
+      else document.body.style.overflow = ''
+      return () => { document.body.style.overflow = '' }
+    }, [mobileMenuOpen])
+  })
+
   return (
     <div style={{ backgroundColor: '#000000', color: '#ffffff', minHeight: '100vh' }}>
 
@@ -127,27 +136,52 @@ export function LandingPage() {
           </div>
         </div>
 
-        {/* Mobile menu dropdown */}
+        {/* Mobile menu dropdown (Full screen overlay) */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-black/95 backdrop-blur-md border-b border-[#1A1A1A] p-4 flex flex-col gap-4">
-            {NAV_LINKS.map(link => (
-              <button
-                key={link.id}
+          <div className="md:hidden fixed inset-0 z-[100] bg-[#000000] flex flex-col overflow-y-auto">
+            {/* Header matches navbar height */}
+            <div className="flex items-center justify-between px-6 border-b border-[#1A1A1A]" style={{ height: '56px', minHeight: '56px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{
+                  width: '28px', height: '28px', borderRadius: '8px',
+                  backgroundColor: '#111111', border: '1px solid #232323', display: 'flex',
+                  alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                }}>
+                  <Zap size={14} color="#4D8DFF" fill="#4D8DFF" />
+                </div>
+                <span style={{ fontSize: '16px', fontWeight: 600, color: '#ffffff', letterSpacing: '-0.02em' }}>NoteForge</span>
+              </div>
+              <button 
+                onClick={() => setMobileMenuOpen(false)} 
+                className="p-1 text-[#9A9A9A] hover:text-white"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            
+            <div className="flex flex-col px-6 pt-4 pb-8">
+              {NAV_LINKS.map(link => (
+                <button
+                  key={link.id}
+                  onClick={() => {
+                    setMobileMenuOpen(false)
+                    scrollTo(link.id)
+                  }}
+                  className="text-left text-[20px] text-[#ffffff] font-medium py-5 border-b border-[#1A1A1A]"
+                >
+                  {link.label}
+                </button>
+              ))}
+              <button 
                 onClick={() => {
                   setMobileMenuOpen(false)
-                  scrollTo(link.id)
+                  navigate('/giris')
                 }}
-                className="text-left text-[16px] text-[#9A9A9A] hover:text-white py-2"
+                className="text-left text-[20px] text-[#4D8DFF] font-medium py-5 border-b border-[#1A1A1A]"
               >
-                {link.label}
+                Giriş Yap
               </button>
-            ))}
-            <button 
-              onClick={() => navigate('/giris')}
-              className="text-left text-[16px] text-[#9A9A9A] hover:text-white py-2 sm:hidden"
-            >
-              Giriş Yap
-            </button>
+            </div>
           </div>
         )}
       </nav>
@@ -160,13 +194,7 @@ export function LandingPage() {
           ══════════════════════════════════════════════════════ */}
       <section
         id="hero"
-        style={{
-          position:        'relative',
-          padding:         '80px 24px 96px',
-          textAlign:       'center',
-          backgroundColor: '#000000',   /* fallback while video loads */
-          overflow:        'hidden',
-        }}
+        className="relative pt-[80px] pb-[96px] px-6 sm:px-8 text-left sm:text-center bg-[#000000] overflow-hidden"
       >
         {/* Background video */}
         <video
@@ -208,7 +236,7 @@ export function LandingPage() {
         }} />
 
         {/* Hero content */}
-        <div style={{ position: 'relative', zIndex: 3, maxWidth: '800px', margin: '0 auto' }}>
+        <div className="relative z-10 w-full max-w-[800px] mx-auto flex flex-col items-start sm:items-center">
           {/* Status badge */}
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: '8px',
@@ -223,19 +251,19 @@ export function LandingPage() {
           </div>
 
           {/* Headline */}
-          <h1 className="text-4xl md:text-[56px] font-bold leading-tight tracking-tight mb-5 text-white">
+          <h1 className="text-4xl md:text-[56px] font-bold leading-[1.1] tracking-tight mb-5 text-white w-full">
             Düşüncelerin için<br />
             <span className="text-gradient-blue">sade bir yer.</span>
           </h1>
 
           {/* Sub-headline */}
-          <p className="text-[16px] md:text-[18px] text-[#9A9A9A] max-w-[520px] mx-auto mb-9 leading-relaxed">
+          <p className="text-[16px] md:text-[18px] text-[#9A9A9A] max-w-[520px] mb-8 leading-relaxed w-full">
             Düşüncelerini düzenlemek isteyen herkes için —
             AI destekli, görsel zengin, kilitlenme yok.
           </p>
 
           {/* CTA buttons */}
-          <div className="flex flex-col sm:flex-row justify-center gap-3 w-full max-w-[300px] sm:max-w-none mx-auto">
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:justify-center">
             <Button variant="primary" size="lg" onClick={() => navigate('/giris')} id="hero-cta-primary" className="gap-2 w-full sm:w-auto">
               Ücretsiz Başla <ArrowRight size={16} />
             </Button>

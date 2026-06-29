@@ -26,7 +26,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     }
 
     const explicitStyles = variant === 'icon' ? { flexShrink: 0 } : {
-      sm: { paddingLeft: 16, paddingRight: 16, paddingTop: 8, paddingBottom: 8, fontSize: 13, flexShrink: 0 },
+      sm: { paddingLeft: 20, paddingRight: 20, paddingTop: 10, paddingBottom: 10, fontSize: 13, flexShrink: 0 },
       md: { paddingLeft: 20, paddingRight: 20, paddingTop: 10, paddingBottom: 10, fontSize: 14, flexShrink: 0 },
       lg: { paddingLeft: 28, paddingRight: 28, paddingTop: 12, paddingBottom: 12, fontSize: 15, flexShrink: 0 },
     }[size]
