@@ -7,10 +7,13 @@ import { NoteListPage }    from '@/features/notes/NoteListPage'
 import { NoteEditorPage }  from '@/features/notes/NoteEditorPage'
 import { FullPageSpinner } from '@/components/ui/Spinner'
 import { SearchOverlay }   from '@/components/ui/SearchOverlay'
+import { SettingsPage }    from '@/pages/SettingsPage'
+import { useApplyPreferences } from '@/hooks/useApplyPreferences'
 
 function AppRoutes() {
   // Initialize auth listener at the app root
   const { loading } = useAuth()
+  useApplyPreferences() // Apply user preferences globally
 
   if (loading) return <FullPageSpinner />
 
@@ -44,6 +47,15 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <NoteEditorPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/ayarlar"
+        element={
+          <ProtectedRoute>
+            <SettingsPage />
           </ProtectedRoute>
         }
       />

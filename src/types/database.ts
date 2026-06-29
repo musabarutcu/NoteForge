@@ -80,7 +80,10 @@ export interface UserPreferences {
   font_size: number
   line_height: number
   page_width: 'narrow' | 'medium' | 'full'
-  theme: 'dark' | 'sepia' | 'cool' | 'dim'
+  theme: 'dark' | 'light' | 'sepia'
+  language: 'tr' | 'en'
+  notifications_email: boolean
+  notifications_weekly: boolean
   updated_at: string
 }
 
@@ -108,5 +111,14 @@ export type TagInsert = Pick<Tag, 'user_id' | 'name'>
 export type ProfileUpdate = Partial<Pick<Profile, 'display_name' | 'avatar_url'>>
 
 export type UserPreferencesUpdate = Partial<
-  Pick<UserPreferences, 'font_family' | 'font_size' | 'line_height' | 'page_width' | 'theme'>
+  Pick<UserPreferences,
+    | 'font_family'
+    | 'font_size'
+    | 'line_height'
+    | 'page_width'
+    | 'theme'
+    | 'language'
+    | 'notifications_email'
+    | 'notifications_weekly'
+  >
 >
