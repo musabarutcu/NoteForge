@@ -293,11 +293,11 @@ export function NoteListPage() {
                 borderBottom:  '1px solid #111111',
                 marginBottom:  '4px',
               }}>
-                <span style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#333', width: '200px', flexShrink: 0 }}>Başlık</span>
-                <span style={{ width: '1px', height: '10px', backgroundColor: '#1A1A1A', flexShrink: 0 }} />
-                <span style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#333', flex: 1 }}>İçerik</span>
-                <span style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#333', width: '100px', flexShrink: 0 }}>Etiket</span>
-                <span style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#333', width: '64px', flexShrink: 0, textAlign: 'right' }}>Tarih</span>
+                <span style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#333', flexShrink: 0 }} className="w-auto md:w-[200px] flex-1 md:flex-none">Başlık</span>
+                <span className="hidden md:inline-block" style={{ width: '1px', height: '10px', backgroundColor: '#1A1A1A', flexShrink: 0 }} />
+                <span className="hidden md:inline-block" style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#333', flex: 1 }}>İçerik</span>
+                <span className="hidden md:inline-block" style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#333', width: '100px', flexShrink: 0 }}>Etiket</span>
+                <span className="hidden md:inline-block" style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#333', width: '64px', flexShrink: 0, textAlign: 'right' }}>Tarih</span>
                 <span style={{ width: '48px', flexShrink: 0 }} />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
@@ -560,24 +560,24 @@ function NoteRow({ note, isActive, onClick, onDelete, onMove }: NoteCardProps) {
       }}
     >
       {/* Title — fixed width, no wrap */}
-      <span style={{
+      {/* Title — fixed width on desktop, flex-1 on mobile */}
+      <span className="w-auto flex-1 md:w-[180px] md:flex-none" style={{
         fontSize:     '13px',
         fontWeight:   500,
         color:        isActive ? '#ffffff' : '#CCCCCC',
         whiteSpace:   'nowrap',
         overflow:     'hidden',
         textOverflow: 'ellipsis',
-        width:        '180px',
         flexShrink:   0,
       }}>
         {note.title || 'Başlıksız'}
       </span>
 
       {/* Divider */}
-      <span style={{ width: '1px', height: '14px', backgroundColor: '#1E1E1E', flexShrink: 0 }} />
+      <span className="hidden md:inline-block" style={{ width: '1px', height: '14px', backgroundColor: '#1E1E1E', flexShrink: 0 }} />
 
       {/* Content preview — grows to fill available space */}
-      <span style={{
+      <span className="hidden md:inline-block" style={{
         fontSize:     '12px',
         color:        '#444444',
         whiteSpace:   'nowrap',
@@ -590,7 +590,7 @@ function NoteRow({ note, isActive, onClick, onDelete, onMove }: NoteCardProps) {
       </span>
 
       {/* Tags — up to 2, fixed width area */}
-      <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
+      <div className="hidden md:flex" style={{ gap: '4px', flexShrink: 0, width: '100px', overflow: 'hidden' }}>
         {note.tags.slice(0, 2).map(tag => (
           <span
             key={tag.id}
@@ -615,7 +615,13 @@ function NoteRow({ note, isActive, onClick, onDelete, onMove }: NoteCardProps) {
       </div>
 
       {/* Date */}
-      <span style={{ fontSize: '11px', color: '#3A3A3A', flexShrink: 0, width: '56px', textAlign: 'right' }}>
+      <span className="hidden md:inline-block" style={{
+        fontSize:   '11px',
+        color:      '#555555',
+        width:      '64px',
+        flexShrink: 0,
+        textAlign:  'right',
+      }}>
         {formatRelativeDate(note.updated_at)}
       </span>
 

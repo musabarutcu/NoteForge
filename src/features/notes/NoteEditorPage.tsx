@@ -7,7 +7,7 @@ import {
   Bold, Italic, Strikethrough, Quote, SquareTerminal, Indent, Outdent, Minus, Heading3,
   List, ListOrdered, Code, Heading1, Heading2,
   Download, Eye, ArrowLeft, Check, Loader2, Zap, MoreHorizontal,
-  Tag, FolderOpen, X, Plus, ImagePlus,
+  Tag, FolderOpen, X, Plus, ImagePlus, Menu,
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
@@ -44,6 +44,7 @@ export function NoteEditorPage() {
   const [saveState, setSaveState] = useState<SaveState>('saved')
   const [aiEnabled, setAiEnabled] = useState(false)
   const [showExport,   setShowExport]   = useState(false)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [showTagPanel, setShowTagPanel] = useState(false)  // tag picker popover
   const [showFolderModal, setShowFolderModal] = useState(false)
   const [wordCount, setWordCount]   = useState(0)
@@ -333,25 +334,42 @@ export function NoteEditorPage() {
     <div style={{ display: 'flex', height: '100vh', backgroundColor: '#000000', overflow: 'hidden' }}>
 
       {/* Sidebar */}
-      <Sidebar onNewNote={handleNewNote} />
+      <Sidebar 
+        onNewNote={handleNewNote} 
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+      />
 
       {/* ── Editor pane ─────────────────────────────────── */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, height: '100%' }}>
 
         {/* ── Sticky Toolbar ────────────────────────────── */}
         <div style={{
-          display:         'flex',
-          alignItems:      'center',
-          height:          '48px',
-          padding:         '0 12px',
-          gap:             '4px',
-          backgroundColor: '#080808',
-          borderBottom:    '1px solid #232323',
-          flexShrink:      0,
-          overflowX:       'auto',
-        }}>
+            display:         'flex',
+            alignItems:      'center',
+            height:          '48px',
+            padding:         '0 12px',
+            gap:             '4px',
+            backgroundColor: '#080808',
+            borderBottom:    '1px solid #232323',
+            flexShrink:      0,
+            overflowX:       'auto',
+            scrollbarWidth:  'none', // for firefox
+            msOverflowStyle: 'none', // for IE
+          }}
+          className="[&::-webkit-scrollbar]:hidden"
+        >
+          {/* Hamburger Menu (Mobile Only) */}
+          <button
+            className="md:hidden p-1 mr-1 rounded-md text-[#9A9A9A] hover:bg-[#111111] hover:text-white transition-colors shrink-0"
+            onClick={() => setIsSidebarOpen(true)}
+            title="Menü"
+          >
+            <Menu size={18} />
+          </button>
+
           {/* Back */}
-          <Button variant="icon" size="sm" onClick={() => navigate('/notlar')} title="Geri" className="mr-1">
+          <Button variant="icon" size="sm" onClick={() => navigate('/notlar')} title="Geri" className="mr-1 shrink-0">
             <ArrowLeft size={16} />
           </Button>
 
@@ -485,7 +503,7 @@ export function NoteEditorPage() {
 
         {/* ── Editor scrollable area ───────────────────── */}
         <div className="editor-surface" style={{ flex: 1, overflowY: 'auto' }}>
-          <div style={{ maxWidth: '720px', margin: '0 auto', padding: '40px 32px' }}>
+          <div className="mx-auto max-w-[720px] px-5 py-8 md:px-8 md:py-10">
 
             {/* Title */}
             <input

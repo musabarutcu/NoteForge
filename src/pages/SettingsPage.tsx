@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { ArrowLeft } from 'lucide-react'
 import { Card, Divider } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -131,9 +132,24 @@ export function SettingsPage() {
 
   return (
     <div style={{ padding: '40px', maxWidth: '800px', margin: '0 auto', width: '100%' }}>
-      <h1 style={{ fontSize: '24px', fontWeight: 600, marginBottom: '24px' }}>
-        {t('settings.title')}
-      </h1>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+        <button 
+          onClick={() => navigate('/notlar')}
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            width: '32px', height: '32px', borderRadius: '8px',
+            backgroundColor: '#111111', border: '1px solid #232323',
+            color: '#9A9A9A', cursor: 'pointer', transition: 'all 150ms'
+          }}
+          onMouseEnter={e => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = '#4D8DFF' }}
+          onMouseLeave={e => { e.currentTarget.style.color = '#9A9A9A'; e.currentTarget.style.borderColor = '#232323' }}
+        >
+          <ArrowLeft size={16} />
+        </button>
+        <h1 style={{ fontSize: '24px', fontWeight: 600, margin: 0 }}>
+          {t('settings.title')}
+        </h1>
+      </div>
 
       {/* Tabs */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '32px', borderBottom: '1px solid var(--color-border)', paddingBottom: '12px', overflowX: 'auto' }}>
