@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   FileText, Zap, Folder, Download,
@@ -48,13 +48,11 @@ export function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   // Body scroll lock for mobile menu
-  import('react').then(({ useEffect }) => {
-    useEffect(() => {
-      if (mobileMenuOpen) document.body.style.overflow = 'hidden'
-      else document.body.style.overflow = ''
-      return () => { document.body.style.overflow = '' }
-    }, [mobileMenuOpen])
-  })
+  useEffect(() => {
+    if (mobileMenuOpen) document.body.style.overflow = 'hidden'
+    else document.body.style.overflow = ''
+    return () => { document.body.style.overflow = '' }
+  }, [mobileMenuOpen])
 
   return (
     <div style={{ backgroundColor: '#000000', color: '#ffffff', minHeight: '100vh' }}>
@@ -121,10 +119,10 @@ export function LandingPage() {
 
           {/* CTA buttons */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-            <Button variant="ghost" size="sm" onClick={() => navigate('/giris')} id="nav-login" className="hidden sm:inline-flex" style={{ whiteSpace: 'nowrap' }}>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/giris')} id="nav-login" className="hidden sm:inline-flex" style={{ padding: '10px 24px', fontSize: '14px', whiteSpace: 'nowrap', height: '40px' }}>
               Giriş Yap
             </Button>
-            <Button variant="primary" size="sm" onClick={() => navigate('/giris')} id="nav-register" style={{ whiteSpace: 'nowrap' }}>
+            <Button variant="primary" size="sm" onClick={() => navigate('/giris')} id="nav-register" style={{ padding: '10px 24px', fontSize: '14px', whiteSpace: 'nowrap', height: '40px' }}>
               Kayıt Ol
             </Button>
             <button
@@ -194,7 +192,7 @@ export function LandingPage() {
           ══════════════════════════════════════════════════════ */}
       <section
         id="hero"
-        className="relative pt-[80px] pb-[96px] px-6 sm:px-8 text-left sm:text-center bg-[#000000] overflow-hidden"
+        className="relative pt-[80px] pb-[96px] px-6 sm:px-8 text-center bg-[#000000] overflow-hidden"
       >
         {/* Background video */}
         <video
@@ -236,7 +234,7 @@ export function LandingPage() {
         }} />
 
         {/* Hero content */}
-        <div className="relative z-10 w-full max-w-[800px] mx-auto flex flex-col items-start sm:items-center">
+        <div className="relative z-10 w-full max-w-[800px] mx-auto flex flex-col items-center">
           {/* Status badge */}
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: '8px',
@@ -263,8 +261,8 @@ export function LandingPage() {
           </p>
 
           {/* CTA buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 w-full sm:justify-center">
-            <Button variant="primary" size="lg" onClick={() => navigate('/giris')} id="hero-cta-primary" className="gap-2 w-full sm:w-auto">
+          <div className="flex flex-col sm:flex-row gap-3 w-full justify-center">
+            <Button variant="primary" size="lg" onClick={() => navigate('/giris')} id="hero-cta-primary" className="gap-2 w-auto mx-auto" style={{ padding: '14px 32px' }}>
               Ücretsiz Başla <ArrowRight size={16} />
             </Button>
           </div>
