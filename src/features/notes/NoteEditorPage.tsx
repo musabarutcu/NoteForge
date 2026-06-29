@@ -484,7 +484,7 @@ export function NoteEditorPage() {
         </div>
 
         {/* ── Editor scrollable area ───────────────────── */}
-        <div style={{ flex: 1, overflowY: 'auto' }}>
+        <div className="editor-surface" style={{ flex: 1, overflowY: 'auto' }}>
           <div style={{ maxWidth: '720px', margin: '0 auto', padding: '40px 32px' }}>
 
             {/* Title */}
@@ -496,7 +496,7 @@ export function NoteEditorPage() {
               placeholder="Not başlığı…"
               style={{
                 width: '100%', background: 'transparent', border: 'none', outline: 'none',
-                fontSize: '28px', fontWeight: 600, color: '#ffffff',
+                fontSize: '28px', fontWeight: 600, color: 'var(--editor-text)',
                 marginBottom: '8px', lineHeight: 1.2, fontFamily: 'inherit',
               }}
             />
@@ -504,7 +504,7 @@ export function NoteEditorPage() {
             {/* ── Metadata row ────────────────────────── */}
             <div style={{
               display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap',
-              marginBottom: '24px', paddingBottom: '20px', borderBottom: '1px solid #1A1A1A',
+              marginBottom: '24px', paddingBottom: '20px', borderBottom: '1px solid var(--editor-border)',
             }}>
               <span style={{ fontSize: '12px', color: '#555555' }}>
                 {formatTimeAgo(note.updated_at)}
@@ -675,7 +675,8 @@ export function NoteEditorPage() {
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
           gap: '16px', height: '32px', padding: '0 24px',
-          borderTop: '1px solid #1A1A1A', flexShrink: 0,
+          borderTop: '1px solid var(--editor-border)', flexShrink: 0,
+          backgroundColor: 'var(--editor-surface)',
         }}>
           {[
             `${wordCount} kelime`,
