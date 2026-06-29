@@ -1,9 +1,8 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
-import { createPortal } from 'react-dom'
+import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   FileText, Zap, Folder, Download,
-  BookOpen, Code2, PenTool, Check, ArrowRight, Menu, X
+  BookOpen, Code2, PenTool, Check, ArrowRight
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
@@ -63,27 +62,7 @@ const NAV_LINKS = [
 /* ─── Component ───────────────────────────────────────────── */
 export function LandingPage() {
   const navigate = useNavigate()
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const heroVideoRef = useRef<HTMLVideoElement>(null)
-
-  const closeMobileMenu = useCallback(() => setMobileMenuOpen(false), [])
-
-  // Body scroll lock for mobile menu
-  useEffect(() => {
-    if (mobileMenuOpen) document.body.style.overflow = 'hidden'
-    else document.body.style.overflow = ''
-    return () => { document.body.style.overflow = '' }
-  }, [mobileMenuOpen])
-
-  // Close mobile menu when viewport crosses desktop breakpoint
-  useEffect(() => {
-    const mq = window.matchMedia('(min-width: 768px)')
-    const onChange = (event: MediaQueryListEvent) => {
-      if (event.matches) setMobileMenuOpen(false)
-    }
-    mq.addEventListener('change', onChange)
-    return () => mq.removeEventListener('change', onChange)
-  }, [])
 
   // Mobile hero video: iOS/Safari often ignores autoplay unless play() is retried
   useEffect(() => {
@@ -199,78 +178,11 @@ export function LandingPage() {
             <Button variant="primary" size="sm" onClick={() => navigate('/giris')} id="nav-register" style={{ padding: '8px 24px', fontSize: '13px', whiteSpace: 'nowrap', height: '36px' }}>
               Kayıt Ol
             </Button>
-            <button
-              type="button"
-              aria-label={mobileMenuOpen ? 'Menüyü kapat' : 'Menüyü aç'}
-              aria-expanded={mobileMenuOpen}
-              className="md:hidden ml-1 flex h-9 w-9 items-center justify-center rounded-[8px] text-[#9A9A9A] hover:bg-[#111111] hover:text-white touch-manipulation"
-              onClick={() => setMobileMenuOpen(open => !open)}
-            >
-              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
           </div>
         </div>
       </nav>
 
-      {/* Mobile menu — portaled outside nav so backdrop-filter doesn't trap fixed positioning */}
-      {mobileMenuOpen && createPortal(
-        <div
-          className="md:hidden fixed inset-0 z-[200] flex flex-col overflow-y-auto animate-in fade-in duration-300"
-          style={{ backgroundColor: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Mobil menü"
-        >
-          <div className="flex items-center justify-between px-6 border-b border-[#1A1A1A]/50" style={{ height: '72px', minHeight: '72px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{
-                width: '32px', height: '32px', borderRadius: '8px',
-                backgroundColor: '#111111', border: '1px solid #232323', display: 'flex',
-                alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-              }}>
-                <Zap size={16} color="#4D8DFF" fill="#4D8DFF" />
-              </div>
-              <span style={{ fontSize: '18px', fontWeight: 600, color: '#ffffff', letterSpacing: '-0.02em' }}>NoteForge</span>
-            </div>
-            <button
-              type="button"
-              aria-label="Menüyü kapat"
-              onClick={closeMobileMenu}
-              className="p-2 -mr-2 rounded-[8px] text-[#9A9A9A] hover:bg-[#111111] hover:text-white touch-manipulation transition-colors"
-            >
-              <X size={28} />
-            </button>
-          </div>
-
-          <div className="flex flex-col px-4 pt-6 pb-12 gap-2">
-            {NAV_LINKS.map(link => (
-              <button
-                key={link.id}
-                type="button"
-                onClick={() => {
-                  closeMobileMenu()
-                  scrollTo(link.id)
-                }}
-                className="text-left text-[22px] text-[#ffffff] font-semibold py-4 px-4 rounded-[12px] hover:bg-[#111111] transition-colors"
-              >
-                {link.label}
-              </button>
-            ))}
-            <div className="h-[1px] bg-[#1A1A1A] my-4 mx-4" />
-            <button
-              type="button"
-              onClick={() => {
-                closeMobileMenu()
-                navigate('/giris')
-              }}
-              className="text-left text-[22px] text-[#4D8DFF] font-semibold py-4 px-4 rounded-[12px] hover:bg-[#111111]/80 transition-colors"
-            >
-              Giriş Yap
-            </button>
-          </div>
-        </div>,
-        document.body
-      )}
+      {/* Mobile menu completely removed as per request */}
 
       {/* Push content below fixed nav */}
       <div style={{ height: '56px' }} />

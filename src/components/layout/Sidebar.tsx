@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Plus, Tag, Settings, User, FileText, ChevronRight, Loader2, X } from 'lucide-react'
+import { Plus, Tag, Settings, User, FileText, ChevronRight, Loader2, X, Zap } from 'lucide-react'
 import { Divider } from '@/components/ui/Card'
 import { useAuthStore } from '@/store/authStore'
 import { getInitials } from '@/lib/utils'
@@ -252,15 +252,15 @@ export function Sidebar({
         borderBottom:   '1px solid #232323',
         flexShrink:     0,
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{
-            width: '28px', height: '28px', borderRadius: '8px',
-            backgroundColor: '#4D8DFF', display: 'flex',
+            width: '32px', height: '32px', borderRadius: '8px',
+            backgroundColor: '#111111', border: '1px solid #232323', display: 'flex',
             alignItems: 'center', justifyContent: 'center', flexShrink: 0,
           }}>
-            <FileText size={13} color="#fff" />
+            <Zap size={16} color="#4D8DFF" fill="#4D8DFF" />
           </div>
-          <span style={{ fontSize: '15px', fontWeight: 600, letterSpacing: '-0.02em' }}>NoteForge</span>
+          <span style={{ fontSize: '18px', fontWeight: 600, letterSpacing: '-0.02em', color: '#ffffff' }}>NoteForge</span>
         </div>
         <button
           onClick={handleSignOut}

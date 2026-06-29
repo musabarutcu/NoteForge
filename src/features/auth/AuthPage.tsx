@@ -79,8 +79,8 @@ export function AuthPage() {
 
         {/* Brand */}
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-[8px] bg-[#4D8DFF] flex items-center justify-center">
-            <FileText size={16} className="text-white" />
+          <div className="w-8 h-8 rounded-[8px] bg-[#111111] border border-[#232323] flex items-center justify-center flex-shrink-0">
+            <Zap size={16} color="#4D8DFF" fill="#4D8DFF" />
           </div>
           <span className="text-[18px] font-semibold text-white tracking-tight">NoteForge</span>
         </div>
@@ -114,22 +114,22 @@ export function AuthPage() {
       </div>
 
       {/* ---- Right Form Panel ---- */}
-      <div className="flex-1 w-full flex flex-col items-center justify-center px-6 py-10 lg:max-w-[500px] mx-auto">
+      <div className="relative flex-1 w-full flex flex-col items-center justify-center px-6 py-10 lg:max-w-[500px] mx-auto">
         {/* Mobile brand */}
-        <div className="lg:hidden flex items-center gap-2 mb-8">
-          <div className="w-7 h-7 rounded-[8px] bg-[#4D8DFF] flex items-center justify-center">
-            <FileText size={14} className="text-white" />
+        <div className="lg:hidden absolute top-10 left-1/2 -translate-x-1/2 flex items-center gap-2">
+          <div className="w-7 h-7 rounded-[8px] bg-[#111111] border border-[#232323] flex items-center justify-center flex-shrink-0">
+            <Zap size={14} color="#4D8DFF" fill="#4D8DFF" />
           </div>
           <span className="text-[16px] font-semibold text-white">NoteForge</span>
         </div>
 
         <div className="w-full max-w-[360px] sm:max-w-[400px]">
           {/* Heading */}
-          <div className="mb-7">
-            <h1 className="text-[24px] font-semibold text-white mb-1">
+          <div className="mb-10">
+            <h1 className="text-[26px] font-bold text-white mb-2 tracking-tight">
               {mode === 'login' ? 'Tekrar hoş geldin.' : 'Hesabını oluştur.'}
             </h1>
-            <p className="text-[14px] text-[#9A9A9A]">
+            <p className="text-[15px] text-[#9A9A9A]">
               {mode === 'login' ? 'Notlarına devam et.' : 'Ücretsiz, reklamsız, hep seninle.'}
             </p>
           </div>
@@ -252,7 +252,7 @@ export function AuthPage() {
               variant="primary"
               size="lg"
               loading={loading}
-              className="w-full mt-2"
+              className="w-full mt-6"
               id={mode === 'login' ? 'btn-login' : 'btn-register'}
             >
               {mode === 'login' ? 'Giriş Yap' : 'Kayıt Ol'}
@@ -260,7 +260,7 @@ export function AuthPage() {
           </form>
 
           {/* Switch mode */}
-          <p className="mt-5 text-center text-[14px] leading-6 text-[#9A9A9A]">
+          <p className="mt-10 text-center text-[14px] leading-6 text-[#9A9A9A]">
             {mode === 'login' ? (
               <>Hesabın yok mu?{' '}
                 <button onClick={() => switchMode('register')} className="text-[#4D8DFF] hover:underline font-medium">
