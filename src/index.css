@@ -1,0 +1,352 @@
+@import "tailwindcss";
+
+/* Smooth anchor scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+
+/* ============================================================
+   NoteForge Design Tokens — CSS Custom Properties
+   ============================================================ */
+:root {
+  --color-bg:           #000000;
+  --color-surface:      #0D0D0D;
+  --color-surface-mid:  #111111;
+  --color-border:       #232323;
+  --color-border-subtle:#1A1A1A;
+  --color-blue:         #4D8DFF;
+  --color-text:         #FFFFFF;
+  --color-text-2:       #9A9A9A;
+  --color-text-3:       #555555;
+  --color-danger:       #EF4444;
+  --color-success:      #22C55E;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+}
+
+/* ============================================================
+   Tailwind v4 Theme Extension
+   ============================================================ */
+@theme {
+  --color-nf-blue:    #4D8DFF;
+  --color-nf-purple:  #7C3AED;
+  --color-nf-danger:  #EF4444;
+  --color-nf-success: #22C55E;
+  --font-family-sans: 'Inter', system-ui, sans-serif;
+  --font-family-mono: 'JetBrains Mono', monospace;
+}
+
+/* ============================================================
+   Base Reset
+   ============================================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* overflow-x: clip instead of hidden — doesn't break position:sticky */
+  overflow-x: clip;
+}
+
+body {
+  background-color: #000000;
+  color: #ffffff;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* CRITICAL: min-height and flex must use valid CSS, not Tailwind class names */
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============================================================
+   Scrollbar
+   ============================================================ */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #232323; border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #3A3A3A; }
+
+/* ============================================================
+   Custom utility classes (not Tailwind-generated)
+   ============================================================ */
+.label-caps {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #9A9A9A;
+}
+
+.text-gradient-blue {
+  background: linear-gradient(135deg, #4D8DFF 0%, #7BB8FF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Purple glow backgrounds — decorative only, never on UI elements */
+.bg-purple-glow-tr {
+  background:
+    radial-gradient(ellipse 60% 50% at 100% 0%, rgba(124, 58, 237, 0.12) 0%, transparent 70%),
+    #000000;
+}
+
+.bg-purple-glow-bl {
+  background:
+    radial-gradient(ellipse 60% 50% at 0% 100%, rgba(124, 58, 237, 0.10) 0%, transparent 70%),
+    #000000;
+}
+
+/* ── Blueprint dot-grid texture ───────────────────────────────
+   Dot grid confined to section background only.
+   Uses layered background-image (NOT mask-image which
+   would darken card children too).
+   Layer 1 (top): dark center vignette — fades dots toward center
+   Layer 2 (bottom): 24×24 subtle blue dot grid
+   ───────────────────────────────────────────── */
+.bg-blueprint-dots {
+  background-color: #000000;
+  background-image:
+    radial-gradient(
+      ellipse 70% 70% at 50% 50%,
+      #000000                   0%,
+      rgba(0, 0, 0, 0.90)      18%,
+      rgba(0, 0, 0, 0.65)      40%,
+      rgba(0, 0, 0, 0.25)      62%,
+      transparent               80%
+    ),
+    radial-gradient(circle, rgba(77, 141, 255, 0.14) 1px, transparent 1px);
+  background-size: 100% 100%, 24px 24px;
+}
+
+
+/* ============================================================
+   Selection & Focus
+   ============================================================ */
+::selection {
+  background: rgba(77, 141, 255, 0.25);
+  color: #ffffff;
+}
+
+:focus-visible {
+  outline: 2px solid #4D8DFF;
+  outline-offset: 2px;
+}
+
+/* ============================================================
+   Code blocks
+   ============================================================ */
+pre, code {
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+pre {
+  background: #111111;
+  border: 1px solid #232323;
+  border-radius: 8px;
+  padding: 16px;
+  overflow-x: auto;
+}
+
+code:not(pre code) {
+  background: #111111;
+  border: 1px solid #232323;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 12px;
+}
+
+/* ============================================================
+   Animations
+   ============================================================ */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.animate-fade-in    { animation: fadeIn 200ms ease forwards; }
+.animate-slide-in-up { animation: slideInUp 200ms ease forwards; }
+.animate-spin       { animation: spin 700ms linear infinite; }
+
+/* ============================================================
+   Hero — Ambient Fluid Neon Mesh Animations
+   ============================================================ */
+
+@keyframes fluidBlob1 {
+  0%   { transform: translate(0, 0) rotate(0deg) scale(1); }
+  33%  { transform: translate(-4vw, 5vh) rotate(120deg) scale(1.1); }
+  66%  { transform: translate(3vw, -3vh) rotate(240deg) scale(0.95); }
+  100% { transform: translate(0, 0) rotate(360deg) scale(1); }
+}
+
+@keyframes fluidBlob2 {
+  0%   { transform: translate(0, 0) rotate(0deg) scale(1); }
+  33%  { transform: translate(5vw, -4vh) rotate(-120deg) scale(0.9); }
+  66%  { transform: translate(-2vw, 4vh) rotate(-240deg) scale(1.1); }
+  100% { transform: translate(0, 0) rotate(-360deg) scale(1); }
+}
+
+@keyframes fluidBlob3 {
+  0%   { transform: translate(0, 0) rotate(0deg) scale(1); }
+  50%  { transform: translate(-3vw, -2vh) rotate(180deg) scale(1.05); }
+  100% { transform: translate(0, 0) rotate(360deg) scale(1); }
+}
+
+@keyframes fluidStreak {
+  0%   { transform: rotate(-28deg) translate(0, 0) scaleY(1); opacity: 0.4; }
+  50%  { transform: rotate(-24deg) translate(-3vw, 2vh) scaleY(1.2); opacity: 0.8; }
+  100% { transform: rotate(-28deg) translate(0, 0) scaleY(1); opacity: 0.4; }
+}
+
+/* prefers-reduced-motion: freeze all layers in place, keep the color */
+@media (prefers-reduced-motion: reduce) {
+  .fluid-layer {
+    animation: none !important;
+  }
+}
+
+/* ============================================================
+   TipTap / ProseMirror Editor Content Styles
+   ============================================================ */
+.tiptap-editor {
+  outline: none;
+  min-height: 60vh;
+  font-size: 15px;
+  line-height: 1.75;
+  color: #CCCCCC;
+  font-family: var(--font-sans);
+  caret-color: #4D8DFF;
+  /* Required by ProseMirror */
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* Headings */
+.tiptap-editor h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 28px 0 10px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+.tiptap-editor h2 {
+  font-size: 22px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 22px 0 8px;
+  letter-spacing: -0.01em;
+}
+.tiptap-editor h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #e0e0e0;
+  margin: 18px 0 6px;
+}
+
+/* Paragraph */
+.tiptap-editor p { margin-bottom: 6px; }
+.tiptap-editor p:last-child { margin-bottom: 0; }
+
+/* Inline marks */
+.tiptap-editor strong { color: #ffffff; font-weight: 600; }
+.tiptap-editor em     { color: #C4C4C4; font-style: italic; }
+.tiptap-editor s      { color: #555555; }
+
+/* Inline code */
+.tiptap-editor code {
+  background:    #111111;
+  border:        1px solid #232323;
+  border-radius: 4px;
+  padding:       2px 5px;
+  font-size:     13px;
+  font-family:   var(--font-mono);
+  color:         #7BB8FF;
+}
+
+/* Code block */
+.tiptap-editor pre {
+  background:    #0D0D0D;
+  border:        1px solid #232323;
+  border-radius: 8px;
+  padding:       16px;
+  margin:        14px 0;
+  overflow-x:    auto;
+}
+.tiptap-editor pre code {
+  background:  none;
+  border:      none;
+  padding:     0;
+  color:       #9A9A9A;
+  font-size:   13px;
+}
+
+/* Lists */
+.tiptap-editor ul,
+.tiptap-editor ol {
+  padding-left: 24px;
+  margin:       8px 0;
+}
+.tiptap-editor li          { margin: 3px 0; }
+.tiptap-editor ul li::marker { color: #4D8DFF; }
+.tiptap-editor ol li::marker { color: #4D8DFF; font-weight: 600; }
+
+/* Blockquote */
+.tiptap-editor blockquote {
+  border-left:  3px solid rgba(77, 141, 255, 0.5);
+  padding-left: 16px;
+  margin:       12px 0;
+  color:        #9A9A9A;
+  font-style:   italic;
+}
+
+/* Horizontal rule */
+.tiptap-editor hr {
+  border:     none;
+  border-top: 1px solid #1A1A1A;
+  margin:     20px 0;
+}
+
+/* Selection */
+.tiptap-editor ::selection {
+  background: rgba(77, 141, 255, 0.25);
+  color:      #ffffff;
+}
+
+/* Placeholder for empty editor — uses TipTap's .is-empty class */
+.tiptap-editor p.is-empty:first-child::before {
+  content:        'Notunu yazmaya başla… Markdown kısayolları desteklenir.';
+  color:          #333333;
+  pointer-events: none;
+  float:          left;
+  height:         0;
+}
+
+/* Ensure ProseMirror contenteditable area takes full space */
+.tiptap-editor .ProseMirror {
+  outline: none;
+}
+
