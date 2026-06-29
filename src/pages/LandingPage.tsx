@@ -23,11 +23,28 @@ const STEPS = [
   { n: '03', title: 'Dışa Aktar', desc: 'İstediğin formatta indir, kilitlenme yok.' },
 ]
 
-/* ─── Dot-grid background (inline, for hero-excluded sections) */
-const DOT_BG: React.CSSProperties = {
-  backgroundImage: `radial-gradient(circle, rgba(77,141,255,0.10) 1px, transparent 1px)`,
-  backgroundSize:  '28px 28px',
-  backgroundColor: '#000000',
+/* ─── Dot-grid background helper ────────────────────────────── */
+const getDotSvg = (color1: string, color2: string) => {
+  const svg = `
+<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28'>
+  <defs>
+    <linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'>
+      <stop offset='0%' stop-color='${color1}' />
+      <stop offset='100%' stop-color='${color2}' />
+    </linearGradient>
+  </defs>
+  <circle cx='14' cy='14' r='1.5' fill='url(#g)' />
+</svg>
+`.trim()
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
+}
+
+/* ─── Section Background Glow Helper ──────────────────────── */
+const SECTION_BG_GLOW: React.CSSProperties = {
+  position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+  width: '100vw', height: '150%',
+  background: 'radial-gradient(ellipse at center, #000000 0%, rgba(0,0,0,0.95) 30%, rgba(0,0,0,0) 70%)',
+  pointerEvents: 'none', zIndex: -1
 }
 
 /* ─── Smooth scroll helper ────────────────────────────────── */
@@ -234,7 +251,7 @@ export function LandingPage() {
         }} />
 
         {/* Hero content */}
-        <div className="relative z-10 w-full max-w-[800px] mx-auto flex flex-col items-center">
+        <div style={{ position: 'relative', zIndex: 3, maxWidth: '800px', margin: '0 auto' }} className="text-center w-full flex flex-col items-center">
           {/* Status badge */}
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: '8px',
@@ -261,8 +278,8 @@ export function LandingPage() {
           </p>
 
           {/* CTA buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 w-full justify-center">
-            <Button variant="primary" size="lg" onClick={() => navigate('/giris')} id="hero-cta-primary" className="gap-2 w-auto mx-auto" style={{ padding: '14px 32px' }}>
+          <div className="flex flex-col sm:flex-row gap-3 items-center justify-center w-full max-w-[300px] sm:max-w-none mx-auto">
+            <Button variant="primary" size="lg" onClick={() => navigate('/giris')} id="hero-cta-primary" className="gap-2 w-full sm:w-auto" style={{ padding: '14px 32px' }}>
               Ücretsiz Başla <ArrowRight size={16} />
             </Button>
           </div>
@@ -320,21 +337,63 @@ export function LandingPage() {
       {/* ══════════════════════════════════════════════════════
           NON-HERO SECTIONS — single wrapper with continuous dot grid
           ══════════════════════════════════════════════════════ */}
-      <div style={{
-        ...DOT_BG,
-        /* Subtle ambient gradient over the whole non-hero area */
-        backgroundImage: `
-          radial-gradient(ellipse 60% 30% at 80% 10%, rgba(77,141,255,0.06) 0%, transparent 60%),
-          radial-gradient(ellipse 50% 25% at 20% 60%, rgba(124,58,237,0.05) 0%, transparent 60%),
-          radial-gradient(circle, rgba(77,141,255,0.10) 1px, transparent 1px)
-        `,
-        backgroundSize: 'auto, auto, 28px 28px',
-      }}>
+      <div style={{ position: 'relative', backgroundColor: '#000000' }}>
+        
+        {/* Top Fade Transition (Hero to Features) */}
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, height: '250px',
+          background: 'linear-gradient(to bottom, #000000 0%, rgba(0,0,0,0) 100%)',
+          pointerEvents: 'none', zIndex: 1
+        }} />
+
+        {/* Ambient glow over the whole non-hero area */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          backgroundImage: `
+            radial-gradient(ellipse 60% 30% at 80% 10%, rgba(77,141,255,0.06) 0%, transparent 60%),
+            radial-gradient(ellipse 50% 25% at 20% 60%, rgba(124,58,237,0.05) 0%, transparent 60%)
+          `,
+          pointerEvents: 'none', zIndex: 0
+        }} />
+
+        {/* Layer 1: Top (Blue dominant) */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          backgroundImage: `url("${getDotSvg('#3B82F6', '#6366F1')}")`,
+          backgroundSize: '28px 28px',
+          maskImage: 'linear-gradient(to bottom, black 0%, black 20%, transparent 40%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 20%, transparent 40%)',
+          opacity: 0.30, zIndex: 0, pointerEvents: 'none'
+        }} />
+
+        {/* Layer 2: Middle (Balanced) */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          backgroundImage: `url("${getDotSvg('#4D8DFF', '#8B5CF6')}")`,
+          backgroundSize: '28px 28px',
+          maskImage: 'linear-gradient(to bottom, transparent 20%, black 40%, black 60%, transparent 80%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent 20%, black 40%, black 60%, transparent 80%)',
+          opacity: 0.30, zIndex: 0, pointerEvents: 'none'
+        }} />
+
+        {/* Layer 3: Bottom (Purple dominant) */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          backgroundImage: `url("${getDotSvg('#6366F1', '#A855F7')}")`,
+          backgroundSize: '28px 28px',
+          maskImage: 'linear-gradient(to bottom, transparent 60%, black 80%, black 100%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent 60%, black 80%, black 100%)',
+          opacity: 0.30, zIndex: 0, pointerEvents: 'none'
+        }} />
+
+        {/* Real content wrapper */}
+        <div className="relative z-10">
 
         {/* ── FEATURES ────────────────────────────────────────── */}
-        <section id="ozellikler" style={{ padding: '80px 24px' }}>
+        <section id="ozellikler" style={{ padding: '80px 24px', position: 'relative' }}>
+          <div style={SECTION_BG_GLOW} />
           <div style={{ maxWidth: '1024px', margin: '0 auto' }}>
-            <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+            <div style={{ textAlign: 'center', marginBottom: '48px', position: 'relative' }}>
               <p className="label-caps" style={{ marginBottom: '12px' }}>ÖZELLİKLER</p>
               <h2 style={{ fontSize: '34px', fontWeight: 700, color: '#ffffff', letterSpacing: '-0.02em' }}>
                 Sadece ihtiyacın olan her şey.
@@ -365,10 +424,11 @@ export function LandingPage() {
         {/* ── HOW IT WORKS ────────────────────────────────────── */}
         <section
           id="nasil-calisir"
-          style={{ padding: '80px 24px', borderTop: '1px solid #1A1A1A' }}
+          style={{ padding: '80px 24px', borderTop: '1px solid #1A1A1A', position: 'relative' }}
         >
+          <div style={SECTION_BG_GLOW} />
           <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-            <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+            <div style={{ textAlign: 'center', marginBottom: '48px', position: 'relative' }}>
               <p className="label-caps" style={{ marginBottom: '12px' }}>NASIL ÇALIŞIR</p>
               <h2 style={{ fontSize: '34px', fontWeight: 700, color: '#ffffff', letterSpacing: '-0.02em' }}>
                 Üç adım, hepsi bu.
@@ -396,8 +456,9 @@ export function LandingPage() {
         </section>
 
         {/* ── DESKTOP (COMING SOON) ───────────────────────────── */}
-        <section id="masaustu" style={{ padding: '80px 24px', borderTop: '1px solid #1A1A1A', textAlign: 'center' }}>
-          <div style={{ maxWidth: '480px', margin: '0 auto' }}>
+        <section id="masaustu" style={{ padding: '80px 24px', borderTop: '1px solid #1A1A1A', textAlign: 'center', position: 'relative' }}>
+          <div style={SECTION_BG_GLOW} />
+          <div style={{ maxWidth: '480px', margin: '0 auto', position: 'relative' }}>
             <span style={{
               display: 'inline-flex', padding: '4px 12px', borderRadius: '9999px',
               backgroundColor: '#111111', border: '1px solid #232323',
@@ -427,9 +488,10 @@ export function LandingPage() {
         {/* ── CLOSING CTA ─────────────────────────────────────── */}
         <section
           id="basla"
-          style={{ padding: '80px 24px', borderTop: '1px solid #1A1A1A', textAlign: 'center' }}
+          style={{ padding: '80px 24px', borderTop: '1px solid #1A1A1A', textAlign: 'center', position: 'relative' }}
         >
-          <div style={{ maxWidth: '560px', margin: '0 auto' }}>
+          <div style={SECTION_BG_GLOW} />
+          <div style={{ maxWidth: '560px', margin: '0 auto', position: 'relative' }}>
             <h2 style={{ fontSize: '48px', fontWeight: 700, color: '#ffffff', marginBottom: '16px', letterSpacing: '-0.03em' }}>
               Bugün başla.
             </h2>
@@ -479,6 +541,7 @@ export function LandingPage() {
           </div>
         </footer>
 
+        </div>{/* end of content wrapper */}
       </div>{/* end non-hero wrapper */}
 
     </div>
