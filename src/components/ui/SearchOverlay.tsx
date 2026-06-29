@@ -141,8 +141,8 @@ export function SearchOverlay() {
       onClick={close}
     >
       <div 
+        className="w-[95%] sm:w-full max-w-[600px]"
         style={{
-          width: '100%', maxWidth: '600px',
           backgroundColor: '#0D0D0D',
           border: '1px solid #232323',
           borderRadius: '12px',

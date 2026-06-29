@@ -131,7 +131,7 @@ export function SettingsPage() {
   }
 
   return (
-    <div style={{ padding: '40px', maxWidth: '800px', margin: '0 auto', width: '100%' }}>
+    <div className="w-full max-w-[800px] mx-auto p-5 md:p-10">
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
         <button 
           onClick={() => navigate('/notlar')}
@@ -152,7 +152,10 @@ export function SettingsPage() {
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '32px', borderBottom: '1px solid var(--color-border)', paddingBottom: '12px', overflowX: 'auto' }}>
+      <div 
+        style={{ display: 'flex', gap: '8px', marginBottom: '32px', borderBottom: '1px solid var(--color-border)', paddingBottom: '12px', overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        className="[&::-webkit-scrollbar]:hidden"
+      >
         <TabButton active={activeTab === 'account'} onClick={() => setActiveTab('account')}>
           {t('settings.tab.account')}
         </TabButton>

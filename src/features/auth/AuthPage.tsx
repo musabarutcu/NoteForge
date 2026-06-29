@@ -114,7 +114,7 @@ export function AuthPage() {
       </div>
 
       {/* ---- Right Form Panel ---- */}
-      <div className="flex-1 lg:max-w-[480px] flex flex-col items-center justify-center px-8 py-12">
+      <div className="flex-1 lg:max-w-[480px] flex flex-col items-center justify-center px-6 py-8 md:px-8 md:py-12">
         {/* Mobile brand */}
         <div className="lg:hidden flex items-center gap-2 mb-8">
           <div className="w-7 h-7 rounded-[8px] bg-[#4D8DFF] flex items-center justify-center">
