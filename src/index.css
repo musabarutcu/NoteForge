@@ -321,6 +321,21 @@ code:not(pre code) {
   .nf-hero-mockup { width: min(100%, 360px); margin-top: 34px; opacity: 0.72; }
 }
 
+/* Mobile hero video — hide iOS paused-state play glyph; keep desktop untouched */
+@media (max-width: 767px) {
+  .nf-hero-video {
+    pointer-events: none;
+  }
+
+  .nf-hero-video::-webkit-media-controls {
+    display: none !important;
+  }
+
+  .nf-hero-video::-webkit-media-controls-start-playback-button {
+    display: none !important;
+  }
+}
+
 /* ============================================================
    TipTap / ProseMirror Editor Content Styles
    ============================================================ */

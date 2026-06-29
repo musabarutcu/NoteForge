@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import {
   FileText, Zap, Folder, Download,
@@ -63,6 +64,9 @@ const NAV_LINKS = [
 export function LandingPage() {
   const navigate = useNavigate()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const heroVideoRef = useRef<HTMLVideoElement>(null)
+
+  const closeMobileMenu = useCallback(() => setMobileMenuOpen(false), [])
 
   // Body scroll lock for mobile menu
   useEffect(() => {
@@ -70,6 +74,59 @@ export function LandingPage() {
     else document.body.style.overflow = ''
     return () => { document.body.style.overflow = '' }
   }, [mobileMenuOpen])
+
+  // Close mobile menu when viewport crosses desktop breakpoint
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px)')
+    const onChange = (event: MediaQueryListEvent) => {
+      if (event.matches) setMobileMenuOpen(false)
+    }
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
+
+  // Mobile hero video: iOS/Safari often ignores autoplay unless play() is retried
+  useEffect(() => {
+    const video = heroVideoRef.current
+    if (!video) return
+
+    const isMobile = window.matchMedia('(max-width: 767px)').matches
+    if (!isMobile) return
+
+    video.muted = true
+    video.defaultMuted = true
+    video.setAttribute('playsinline', '')
+    video.setAttribute('webkit-playsinline', '')
+
+    const tryPlay = () => {
+      video.play().catch(() => {
+        // Autoplay blocked until first user interaction on some mobile browsers.
+      })
+    }
+
+    tryPlay()
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') tryPlay()
+    }
+
+    const unlockOnTouch = () => {
+      tryPlay()
+      document.removeEventListener('touchstart', unlockOnTouch, true)
+    }
+
+    video.addEventListener('loadeddata', tryPlay)
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    video.play().catch(() => {
+      document.addEventListener('touchstart', unlockOnTouch, { capture: true, passive: true })
+    })
+
+    return () => {
+      video.removeEventListener('loadeddata', tryPlay)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+      document.removeEventListener('touchstart', unlockOnTouch, true)
+    }
+  }, [])
 
   return (
     <div style={{ backgroundColor: '#000000', color: '#ffffff', minHeight: '100vh' }}>
@@ -143,63 +200,75 @@ export function LandingPage() {
               Kayıt Ol
             </Button>
             <button
-              className="md:hidden ml-1 flex h-9 w-9 items-center justify-center rounded-[8px] text-[#9A9A9A] hover:bg-[#111111] hover:text-white"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              type="button"
+              aria-label={mobileMenuOpen ? 'Menüyü kapat' : 'Menüyü aç'}
+              aria-expanded={mobileMenuOpen}
+              className="md:hidden ml-1 flex h-9 w-9 items-center justify-center rounded-[8px] text-[#9A9A9A] hover:bg-[#111111] hover:text-white touch-manipulation"
+              onClick={() => setMobileMenuOpen(open => !open)}
             >
               {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
         </div>
-
-        {/* Mobile menu dropdown (Full screen overlay) */}
-        {mobileMenuOpen && (
-          <div className="md:hidden fixed inset-0 z-[100] bg-[#000000] flex flex-col overflow-y-auto">
-            {/* Header matches navbar height */}
-            <div className="flex items-center justify-between px-6 border-b border-[#1A1A1A]" style={{ height: '56px', minHeight: '56px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div style={{
-                  width: '28px', height: '28px', borderRadius: '8px',
-                  backgroundColor: '#111111', border: '1px solid #232323', display: 'flex',
-                  alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                }}>
-                  <Zap size={14} color="#4D8DFF" fill="#4D8DFF" />
-                </div>
-                <span style={{ fontSize: '16px', fontWeight: 600, color: '#ffffff', letterSpacing: '-0.02em' }}>NoteForge</span>
-              </div>
-              <button 
-                onClick={() => setMobileMenuOpen(false)} 
-                className="p-1 text-[#9A9A9A] hover:text-white"
-              >
-                <X size={24} />
-              </button>
-            </div>
-            
-            <div className="flex flex-col px-6 pt-4 pb-8">
-              {NAV_LINKS.map(link => (
-                <button
-                  key={link.id}
-                  onClick={() => {
-                    setMobileMenuOpen(false)
-                    scrollTo(link.id)
-                  }}
-                  className="text-left text-[20px] text-[#ffffff] font-medium py-5 border-b border-[#1A1A1A]"
-                >
-                  {link.label}
-                </button>
-              ))}
-              <button 
-                onClick={() => {
-                  setMobileMenuOpen(false)
-                  navigate('/giris')
-                }}
-                className="text-left text-[20px] text-[#4D8DFF] font-medium py-5 border-b border-[#1A1A1A]"
-              >
-                Giriş Yap
-              </button>
-            </div>
-          </div>
-        )}
       </nav>
+
+      {/* Mobile menu — portaled outside nav so backdrop-filter doesn't trap fixed positioning */}
+      {mobileMenuOpen && createPortal(
+        <div
+          className="md:hidden fixed inset-0 z-[200] bg-[#000000] flex flex-col overflow-y-auto"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Mobil menü"
+        >
+          <div className="flex items-center justify-between px-6 border-b border-[#1A1A1A]" style={{ height: '56px', minHeight: '56px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{
+                width: '28px', height: '28px', borderRadius: '8px',
+                backgroundColor: '#111111', border: '1px solid #232323', display: 'flex',
+                alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+              }}>
+                <Zap size={14} color="#4D8DFF" fill="#4D8DFF" />
+              </div>
+              <span style={{ fontSize: '16px', fontWeight: 600, color: '#ffffff', letterSpacing: '-0.02em' }}>NoteForge</span>
+            </div>
+            <button
+              type="button"
+              aria-label="Menüyü kapat"
+              onClick={closeMobileMenu}
+              className="p-1 text-[#9A9A9A] hover:text-white touch-manipulation"
+            >
+              <X size={24} />
+            </button>
+          </div>
+
+          <div className="flex flex-col px-6 pt-4 pb-8">
+            {NAV_LINKS.map(link => (
+              <button
+                key={link.id}
+                type="button"
+                onClick={() => {
+                  closeMobileMenu()
+                  scrollTo(link.id)
+                }}
+                className="text-left text-[20px] text-[#ffffff] font-medium py-5 border-b border-[#1A1A1A]"
+              >
+                {link.label}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => {
+                closeMobileMenu()
+                navigate('/giris')
+              }}
+              className="text-left text-[20px] text-[#4D8DFF] font-medium py-5 border-b border-[#1A1A1A]"
+            >
+              Giriş Yap
+            </button>
+          </div>
+        </div>,
+        document.body
+      )}
 
       {/* Push content below fixed nav */}
       <div style={{ height: '56px' }} />
@@ -213,10 +282,14 @@ export function LandingPage() {
       >
         {/* Background video */}
         <video
+          ref={heroVideoRef}
+          className="nf-hero-video"
           autoPlay
           muted
           loop
           playsInline
+          preload="auto"
+          disablePictureInPicture
           style={{
             position:   'absolute',
             inset:      0,
