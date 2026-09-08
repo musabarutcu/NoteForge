@@ -7,14 +7,21 @@
 **Tıp öğrencileri, mühendisler ve yazarlar için — sade, hızlı ve modern bir not alma uygulaması.**
 Reklamsız. Kilitlenmesiz. Sınırsız.
 
+<br />
+
+🚀 **[Canlı Uygulama (Live Demo): noteforge42.vercel.app](https://noteforge42.vercel.app/)**
+
+<br />
+
 [![React](https://img.shields.io/badge/React-19-149ECA?logo=react&logoColor=white)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)](https://vite.dev)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 [![Supabase](https://img.shields.io/badge/Supabase-Postgres_%2B_Auth-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com)
 [![TipTap](https://img.shields.io/badge/TipTap-ProseMirror-black?logo=tiptap&logoColor=white)](https://tiptap.dev)
+[![Vercel](https://img.shields.io/badge/Vercel-Live_Demo-000000?logo=vercel&logoColor=white)](https://noteforge42.vercel.app/)
 
-[Özellikler](#-özellikler) · [Ekran görüntüleri](#-ekran-görüntüleri) · [Teknoloji yığını](#-teknoloji-yığını) · [Kurulum](#-kurulum) · [Veritabanı şeması](#-veritabanı-şeması) · [Yol haritası](#-yol-haritası)
+[Canlı Demo](https://noteforge42.vercel.app/) · [Özellikler](#-özellikler) · [Ekran görüntüleri](#-ekran-görüntüleri) · [Teknoloji yığını](#-teknoloji-yığını) · [Kurulum](#-kurulum) · [Veritabanı şeması](#-veritabanı-şeması) · [Yol haritası](#-yol-haritası)
 
 </div>
 
