@@ -34,9 +34,6 @@ organizasyonu ve çoklu formatta dışa aktarım sunan tam yığın bir not alma
 üzerinde, arka uç olarak Supabase (Postgres + Auth + Storage) kullanılarak
 geliştirildi.
 
-Proje kasıtlı olarak **tek bir tasarım diline** sadık kalır: koyu tema, sabit
-260px sidebar, 720px okunabilir içerik genişliği — Notion, Bear ve Craft'tan
-ilham alan bir düzen.
 
 <br />
 
