@@ -9,7 +9,7 @@
 
 <br />
 
-🚀 **Live Demo: noteforge42.vercel.app**
+🚀 **Live Demo: https://noteforge42.vercel.app/**
 
 <br />
 
