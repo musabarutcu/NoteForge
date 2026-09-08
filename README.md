@@ -4,12 +4,12 @@
 
 <br />
 
-**Tıp öğrencileri, mühendisler ve yazarlar için — sade, hızlı ve modern bir not alma uygulaması.**
-Reklamsız. Kilitlenmesiz. Sınırsız.
+**Sade, hızlı ve modern bir not alma uygulaması**
+
 
 <br />
 
-🚀 **[Canlı Uygulama (Live Demo): noteforge42.vercel.app](https://noteforge42.vercel.app/)**
+🚀 **Live Demo: noteforge42.vercel.app](https://noteforge42.vercel.app/)**
 
 <br />
 
