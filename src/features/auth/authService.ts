@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase'
+import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 
 export interface AuthError {
   message: string
@@ -14,14 +14,14 @@ export async function signUp(email: string, password: string, displayName: strin
     },
   })
 
-  if (error) throw translateError(error.message)
+  if (error) throw translateError(error)
   return data
 }
 
 // ---- Sign In ----
 export async function signIn(email: string, password: string) {
   const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-  if (error) throw translateError(error.message)
+  if (error) throw translateError(error)
   return data
 }
 
@@ -33,14 +33,14 @@ export async function signInWithGoogle() {
       redirectTo: `${window.location.origin}/notlar`,
     },
   })
-  if (error) throw translateError(error.message)
+  if (error) throw translateError(error)
   return data
 }
 
 // ---- Sign Out ----
 export async function signOut() {
   const { error } = await supabase.auth.signOut()
-  if (error) throw translateError(error.message)
+  if (error) throw translateError(error)
 }
 
 // ---- Password Reset ----
@@ -48,11 +48,33 @@ export async function resetPassword(email: string) {
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${window.location.origin}/sifre-sifirla`,
   })
-  if (error) throw translateError(error.message)
+  if (error) throw translateError(error)
 }
 
 // ---- Translate Supabase error messages to Turkish ----
-function translateError(msg: string): Error {
+/** Ağ katmanı hatası mı? (yanlış şifre değil — sunucuya hiç ulaşılamadı) */
+function isNetworkError(msg: string): boolean {
+  return /failed to fetch|network ?request ?failed|networkerror|fetch failed|load failed|name_not_resolved|enotfound/i.test(msg)
+}
+
+function translateError(err: unknown): Error {
+  const msg = err instanceof Error ? err.message : String(err)
+
+  // Kimlik bilgisi hatalarından ÖNCE: yapılandırma ve bağlantı sorunları.
+  // Bunlar "e-posta veya şifre hatalı" değildir; kullanıcıyı yanlış yönlendirmesin.
+  if (!isSupabaseConfigured()) {
+    return new Error(
+      'Supabase yapılandırılmamış. .env.local içindeki VITE_SUPABASE_URL ve ' +
+      'VITE_SUPABASE_ANON_KEY değerlerini doldurup sunucuyu yeniden başlat.',
+    )
+  }
+  if (isNetworkError(msg)) {
+    return new Error(
+      'Sunucuya ulaşılamıyor. İnternet bağlantını ve Supabase projesinin ' +
+      'hâlâ ayakta olduğunu kontrol et.',
+    )
+  }
+
   const map: Record<string, string> = {
     'Invalid login credentials':           'E-posta veya şifre hatalı.',
     'Email not confirmed':                 'E-posta adresin henüz doğrulanmamış. Gelen kutunu kontrol et.',

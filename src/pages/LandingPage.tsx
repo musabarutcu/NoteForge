@@ -41,8 +41,10 @@ const getDotSvg = (color1: string, color2: string) => {
 
 /* ─── Section Background Glow Helper ──────────────────────── */
 const SECTION_BG_GLOW: React.CSSProperties = {
-  position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-  width: '100vw', height: '150%',
+  // NOT: 100vw kaydırma çubuğunu da sayar; bölüm 6px daha dar olduğu için
+  // parlama her iki yandan 3px taşıyordu. inset ile ebeveyne oturtuluyor.
+  position: 'absolute', top: '50%', left: 0, right: 0, transform: 'translateY(-50%)',
+  height: '150%',
   background: 'radial-gradient(ellipse at center, #000000 0%, rgba(0,0,0,0.95) 30%, rgba(0,0,0,0) 70%)',
   pointerEvents: 'none', zIndex: -1
 }
@@ -108,7 +110,7 @@ export function LandingPage() {
   }, [])
 
   return (
-    <div style={{ backgroundColor: '#000000', color: '#ffffff', minHeight: '100vh' }}>
+    <div style={{ backgroundColor: '#000000', color: '#ffffff', minHeight: '100dvh' }}>
 
       {/* ── FIXED NAVBAR ────────────────────────────────────── */}
       <nav
@@ -419,21 +421,28 @@ export function LandingPage() {
                 Üç adım, hepsi bu.
               </h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Tek sütuna düştüğünde adımlar alt alta sola yapışmasın:
+                dar ekranda [rozet | metin] satırı, md+ üstünde 3 sütun blok. */}
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-8">
               {STEPS.map(step => (
-                <div key={step.n}>
-                  <div style={{
-                    width: '40px', height: '40px', borderRadius: '50%',
-                    border: '1px solid rgba(77,141,255,0.4)',
-                    backgroundColor: 'rgba(77,141,255,0.08)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '13px', fontWeight: 700, color: '#4D8DFF',
-                    marginBottom: '16px',
-                  }}>
+                <div key={step.n} className="flex items-start gap-4 md:block">
+                  <div
+                    className="md:mb-4"
+                    style={{
+                      width: '40px', height: '40px', borderRadius: '50%',
+                      border: '1px solid rgba(77,141,255,0.4)',
+                      backgroundColor: 'rgba(77,141,255,0.08)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: '13px', fontWeight: 700, color: '#4D8DFF',
+                      flexShrink: 0,
+                    }}
+                  >
                     {step.n}
                   </div>
-                  <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#ffffff', marginBottom: '8px' }}>{step.title}</h3>
-                  <p style={{ fontSize: '14px', color: '#9A9A9A', lineHeight: 1.6 }}>{step.desc}</p>
+                  <div style={{ minWidth: 0 }}>
+                    <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>{step.title}</h3>
+                    <p style={{ fontSize: '14px', color: '#9A9A9A', lineHeight: 1.6 }}>{step.desc}</p>
+                  </div>
                 </div>
               ))}
             </div>

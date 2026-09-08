@@ -42,12 +42,14 @@ html {
   transition:       background-color 200ms ease, color 200ms ease;
 }
 
-/* TipTap content area typography */
+/* TipTap content area typography.
+   NOT: genişlik kısıtı burada DEĞİL, .editor-content üzerinde.
+   İkisinde birden olursa içerik iki kez daraltılıp sola kayıyordu. */
 .tiptap {
   font-family:  var(--editor-font-family) !important;
   font-size:    var(--editor-font-size)   !important;
   line-height:  var(--editor-line-height) !important;
-  max-width:    var(--editor-max-width);
+  max-width:    100%;
   color:        var(--editor-text)        !important;
 }
 
@@ -65,15 +67,14 @@ html {
 
 /* ============================================================
    Base Reset
-   ============================================================ */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
 
+   DİKKAT: Buraya katmansız (unlayered) `* { margin:0; padding:0 }`
+   YAZMA. Tailwind utilities `@layer utilities` içindedir ve CSS
+   cascade layers kuralı gereği katmansız stiller bütün katmanlı
+   stilleri ezer — bu da projedeki tüm `p-*` / `m-*` sınıflarını
+   sessizce devre dışı bırakır. Tailwind'in preflight'ı bu reset'i
+   zaten `@layer base` içinde yapıyor.
+   ============================================================ */
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -88,11 +89,14 @@ body {
   font-size: 15px;
   line-height: 1.6;
   min-height: 100vh;
+  /* Mobil tarayıcı adres çubuğu yüzünden oluşan boşluğu engeller */
+  min-height: 100dvh;
 }
 
 /* CRITICAL: min-height and flex must use valid CSS, not Tailwind class names */
 #root {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
 }
@@ -444,10 +448,11 @@ code:not(pre code) {
   color:      #ffffff;
 }
 
-/* Placeholder for empty editor — uses TipTap's .is-empty class */
-.tiptap-editor p.is-empty:first-child::before {
-  content:        'Notunu yazmaya başla… Markdown kısayolları desteklenir.';
-  color:          #333333;
+/* Placeholder — @tiptap/extensions Placeholder eklentisi
+   boş düğüme .is-empty sınıfı + data-placeholder attribute'u basar. */
+.tiptap-editor .is-empty::before {
+  content:        attr(data-placeholder);
+  color:          #3A3A3A;
   pointer-events: none;
   float:          left;
   height:         0;
@@ -458,3 +463,341 @@ code:not(pre code) {
   outline: none;
 }
 
+
+/* ============================================================
+   Note Editor — Toolbar
+   Butonların içeriği kutuya sığsın diye tek kaynak: bu blok.
+   (Daha önce inline style + flex-shrink eksikliği yüzünden
+   yazı/ikonlar sıkışıp taşıyordu.)
+   ============================================================ */
+.nf-toolbar {
+  display:          flex;
+  align-items:      center;
+  gap:              6px;
+  min-height:       52px;
+  padding:          8px 12px;
+  background-color: #080808;
+  border-bottom:    1px solid #232323;
+  flex-shrink:      0;
+  /* Toolbar'ın KENDİSİ kaymaz. Yalnızca ortadaki biçimlendirme
+     grubu kayar; böylece Kaydedildi / AI / Dışa Aktar her genişlikte
+     ekranda kalır. */
+  overflow: hidden;
+}
+
+/* Sol sabit grup: menü + geri */
+.nf-toolbar-lead {
+  display:     flex;
+  align-items: center;
+  gap:         6px;
+  flex-shrink: 0;
+  padding-right: 4px;
+}
+
+/* Orta grup: biçimlendirme butonları — dar ekranda yatay kayar */
+.nf-toolbar-scroll {
+  display:     flex;
+  align-items: center;
+  gap:         6px;
+  flex:        1 1 auto;
+  min-width:   0;
+  overflow-x:  auto;
+  overflow-y:  hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.nf-toolbar-scroll::-webkit-scrollbar { display: none; }
+
+/* Yatay kaydırılabilir alanlar için kenar solması ipucu.
+   data-overflow değerini useOverflowAffordance hook'u yazar. */
+.nf-scroll-x[data-overflow='right'],
+.nf-toolbar-scroll[data-overflow='right'] {
+  mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent 100%);
+}
+.nf-scroll-x[data-overflow='left'],
+.nf-toolbar-scroll[data-overflow='left'] {
+  mask-image: linear-gradient(to right, transparent 0, #000 28px);
+}
+.nf-scroll-x[data-overflow='both'],
+.nf-toolbar-scroll[data-overflow='both'] {
+  mask-image: linear-gradient(to right, transparent 0, #000 28px, #000 calc(100% - 28px), transparent 100%);
+}
+
+/* Sağ sabit grup: kayıt durumu, AI, dışa aktar, görünüm, daha fazla */
+.nf-toolbar-actions {
+  display:      flex;
+  align-items:  center;
+  gap:          6px;
+  flex-shrink:  0;
+  margin-left:  auto;
+  padding-left: 10px;
+  border-left:  1px solid #1A1A1A;
+}
+
+/* Grupların İÇİNDEKİ hiçbir öğe sıkışıp içeriğini taşırmasın.
+   NOT: `.nf-toolbar > *` yazma — o, ortadaki kayan grubun küçülmesini
+   de engelleyip aksiyonları ekran dışına iter. */
+.nf-toolbar-lead > *,
+.nf-toolbar-scroll > *,
+.nf-toolbar-actions > * { flex-shrink: 0; }
+
+.nf-tb-sep {
+  width: 1px;
+  height: 16px;
+  background-color: #232323;
+  margin: 0 4px;
+}
+
+/* İkon butonu — kare kutu, ortalanmış içerik, taşma yok */
+.nf-tb-btn {
+  display:         inline-flex;
+  align-items:     center;
+  justify-content: center;
+  width:           34px;
+  height:          34px;
+  padding:         0;
+  border:          1px solid transparent;
+  border-radius:   8px;
+  background:      transparent;
+  color:           #9A9A9A;
+  font-size:       13px;
+  line-height:     1;
+  cursor:          pointer;
+  transition:      background-color 150ms, color 150ms, border-color 150ms;
+}
+.nf-tb-btn > svg { flex-shrink: 0; display: block; }
+.nf-tb-btn:hover:not(:disabled):not(.is-active) { background-color: #111111; color: #ffffff; }
+.nf-tb-btn.is-active {
+  background-color: #1A1A2E;
+  border-color:     #4D8DFF44;
+  color:            #4D8DFF;
+}
+.nf-tb-btn:disabled { color: #333333; opacity: 0.5; cursor: not-allowed; }
+
+/* Etiketli (yazılı) toolbar butonu — hap/pill */
+.nf-tb-pill {
+  display:       inline-flex;
+  align-items:   center;
+  justify-content: center;
+  gap:           6px;
+  height:        32px;
+  padding:       0 12px;
+  border:        1px solid #232323;
+  border-radius: 8px;
+  background:    transparent;
+  color:         #9A9A9A;
+  font-size:     13px;
+  font-weight:   500;
+  line-height:   1;
+  white-space:   nowrap;   /* etiket asla sarmasın */
+  cursor:        pointer;
+  transition:    background-color 150ms, color 150ms, border-color 150ms;
+}
+.nf-tb-pill > svg { flex-shrink: 0; }
+.nf-tb-pill:hover { border-color: #4D8DFF; color: #ffffff; }
+
+.nf-tb-pill--round { border-radius: 9999px; height: 28px; font-size: 12px; font-weight: 600; }
+.nf-tb-pill--on {
+  background-color: #4D8DFF;
+  border-color:     #4D8DFF;
+  color:            #ffffff;
+}
+.nf-tb-pill--on:hover { background-color: #3D7AEE; border-color: #3D7AEE; color: #ffffff; }
+.nf-tb-pill--off { background-color: #111111; color: #555555; }
+.nf-tb-pill--warn { border-color: #EF444488; color: #EF4444; }
+.nf-tb-pill--warn:hover { border-color: #EF4444; color: #EF4444; }
+
+/* Kayıt göstergesi — metin sarmasın, sıkışmasın */
+.nf-save-indicator {
+  display:     inline-flex;
+  align-items: center;
+  gap:         6px;
+  font-size:   12px;
+  line-height: 1;
+  white-space: nowrap;
+  color:       #555555;
+}
+.nf-save-indicator > svg { flex-shrink: 0; }
+.nf-save-indicator--saved { color: #22C55E; }
+.nf-save-indicator--error { color: #EF4444; }
+
+/* Küçük ekranlarda etiketleri gizle, ikon kalsın (toolbar taşmasın) */
+@media (max-width: 640px) {
+  .nf-tb-label { display: none; }
+  .nf-tb-pill  { padding: 0 10px; }
+}
+
+/* ============================================================
+   Note Editor — ortalanmış içerik alanı
+   ============================================================ */
+.editor-area {
+  flex:            1;
+  display:         flex;
+  justify-content: center;
+  overflow-y:      auto;
+  overflow-x:      hidden;
+  min-height:      0;
+}
+
+.editor-content {
+  width:     100%;
+  max-width: var(--editor-max-width, 760px);
+  padding:   32px 24px 96px;
+}
+
+@media (max-width: 767px) {
+  .editor-content {
+    max-width: none;       /* mobilde tam genişlik */
+    padding:   20px 16px 72px;
+  }
+}
+
+/* ============================================================
+   AI ghost text (satır içi tamamlama önerisi)
+   ============================================================ */
+.ai-ghost-text {
+  color:          #4A4A4A;
+  font-style:     italic;
+  pointer-events: none;
+  user-select:    none;
+  white-space:    pre-wrap;
+}
+
+/* Salt-okunur önizleme (göz ikonu) */
+.tiptap-editor.is-preview { caret-color: transparent; }
+
+/* ============================================================
+   Toast (AI / kayıt hataları)
+   ============================================================ */
+.nf-toast {
+  position:      fixed;
+  left:          50%;
+  bottom:        24px;
+  transform:     translateX(-50%);
+  z-index:       80;
+  display:       flex;
+  align-items:   center;
+  gap:           10px;
+  max-width:     min(92vw, 420px);
+  padding:       10px 14px;
+  border-radius: 10px;
+  background:    #0D0D0D;
+  border:        1px solid #232323;
+  box-shadow:    0 12px 40px rgba(0, 0, 0, 0.6);
+  color:         #C4C4C4;
+  font-size:     13px;
+  line-height:   1.45;
+  animation:     slideInUp 200ms ease forwards;
+}
+.nf-toast--error { border-color: #EF444455; color: #F3B4B4; }
+.nf-toast > svg  { flex-shrink: 0; }
+
+/* ============================================================
+   Auth (giriş / kayıt) — ortalanmış kart
+   ============================================================ */
+.nf-auth-shell {
+  display:         flex;
+  flex:            1;
+  align-items:     center;
+  justify-content: center;
+  padding:         40px 16px;
+  min-width:       0;
+}
+
+.nf-auth-card {
+  width:         100%;
+  max-width:     420px;
+  padding:       32px;
+  border:        1px solid #232323;
+  border-radius: 16px;
+  background:    #0D0D0D;
+  box-shadow:    0 24px 64px rgba(0, 0, 0, 0.55);
+}
+
+@media (max-width: 420px) {
+  .nf-auth-shell { padding: 24px 12px; }
+  .nf-auth-card  { padding: 24px 20px; border-radius: 14px; }
+}
+
+/* Kart başlığı — marka, başlık ve alt metin ortalı */
+.nf-auth-head {
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+  text-align:     center;
+  margin-bottom:  24px;
+}
+
+.nf-auth-brand {
+  display:       inline-flex;
+  align-items:   center;
+  gap:           9px;
+  margin-bottom: 18px;
+}
+
+.nf-auth-brand-mark {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  width:           32px;
+  height:          32px;
+  border-radius:   9px;
+  background:      #111111;
+  border:          1px solid #232323;
+  flex-shrink:     0;
+}
+
+.nf-auth-title {
+  font-size:      22px;
+  font-weight:    700;
+  line-height:    1.25;
+  letter-spacing: -0.02em;
+  color:          #ffffff;
+}
+
+.nf-auth-subtitle {
+  margin-top: 6px;
+  font-size:  14px;
+  line-height: 1.5;
+  color:      #9A9A9A;
+}
+
+/* "ya da e-posta ile" ayracı */
+.nf-auth-sep {
+  display:     flex;
+  align-items: center;
+  gap:         12px;
+  margin:      20px 0;
+}
+.nf-auth-sep::before,
+.nf-auth-sep::after {
+  content:    '';
+  flex:       1;
+  height:     1px;
+  background: #1A1A1A;
+}
+.nf-auth-sep > span {
+  font-size:   12px;
+  color:       #555555;
+  white-space: nowrap;
+}
+
+.nf-auth-alert {
+  margin-bottom: 16px;
+  padding:       10px 12px;
+  border-radius: 8px;
+  font-size:     13px;
+  line-height:   1.45;
+}
+.nf-auth-alert--error   { background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.28); color: #F3B4B4; }
+.nf-auth-alert--success { background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.28); color: #A7E8BF; }
+
+/* Kart alt bilgisi — ince çizgiyle ayrılır */
+.nf-auth-foot {
+  margin-top:  24px;
+  padding-top: 20px;
+  border-top:  1px solid #1A1A1A;
+  text-align:  center;
+}

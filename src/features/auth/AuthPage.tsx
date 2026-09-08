@@ -3,13 +3,19 @@ import { useNavigate } from 'react-router-dom'
 import { Eye, EyeOff, Zap, FileText, Folder, Download } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { Divider } from '@/components/ui/Card'
 import { signIn, signUp, signInWithGoogle } from './authService'
 
 type AuthMode = 'login' | 'register'
 
+const HIGHLIGHTS = [
+  { icon: Zap,      label: 'Inline AI tamamlama — aç/kapa toggle ile' },
+  { icon: FileText, label: 'PDF işaretleme ve görsel üzerine yazma' },
+  { icon: Folder,   label: 'Klasör + etiket hibrit organizasyon' },
+  { icon: Download, label: 'PDF, Word, TXT, Markdown export' },
+]
+
 export function AuthPage() {
-  const navigate   = useNavigate()
+  const navigate = useNavigate()
   const [mode, setMode]       = useState<AuthMode>('login')
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState<string | null>(null)
@@ -21,6 +27,8 @@ export function AuthPage() {
   const [email, setEmail]             = useState('')
   const [password, setPassword]       = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+
+  const isLogin = mode === 'login'
 
   const switchMode = (next: AuthMode) => {
     setMode(next)
@@ -72,65 +80,59 @@ export function AuthPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', backgroundColor: '#000000' }}>
-      {/* ---- Left Decorative Panel ---- */}
-      <div className="hidden lg:flex flex-1 flex-col justify-between p-12 relative overflow-hidden bg-purple-glow-bl">
-        {/* Purple glow is applied via CSS class on this div */}
+    <div style={{ minHeight: '100dvh', display: 'flex', backgroundColor: '#000000' }}>
 
+      {/* ── Sol dekoratif panel (yalnızca geniş ekran) ──────── */}
+      <aside className="bg-purple-glow-bl relative hidden flex-1 flex-col justify-between overflow-hidden p-12 lg:flex">
         {/* Brand */}
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-[8px] bg-[#111111] border border-[#232323] flex items-center justify-center flex-shrink-0">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] border border-[#232323] bg-[#111111]">
             <Zap size={16} color="#4D8DFF" fill="#4D8DFF" />
           </div>
-          <span className="text-[18px] font-semibold text-white tracking-tight">NoteForge</span>
+          <span className="text-[18px] font-semibold tracking-tight text-white">NoteForge</span>
         </div>
 
         {/* Tagline */}
         <div className="max-w-sm">
-          <h2 className="text-[36px] font-semibold text-white leading-tight mb-4">
+          <h2 className="mb-4 text-[36px] leading-tight font-semibold text-white">
             Düşüncelerin için<br />sade bir yer.
           </h2>
-          <p className="text-[15px] text-[#9A9A9A] leading-relaxed">
+          <p className="text-[15px] leading-relaxed text-[#9A9A9A]">
             Tıp öğrencileri, mühendisler ve yazarlar için — AI destekli, reklamsız, ücretsiz.
           </p>
         </div>
 
         {/* Feature list */}
-        <div className="flex flex-col gap-4">
-          {[
-            { icon: Zap,      label: 'Inline AI tamamlama — aç/kapa toggle ile' },
-            { icon: FileText, label: 'PDF işaretleme ve görsel üzerine yazma' },
-            { icon: Folder,   label: 'Klasör + etiket hibrit organizasyon' },
-            { icon: Download, label: 'PDF, Word, TXT, Markdown export' },
-          ].map(({ icon: Icon, label }) => (
-            <div key={label} className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-[8px] bg-[#111111] border border-[#232323] flex items-center justify-center flex-shrink-0">
+        <ul className="flex flex-col gap-4">
+          {HIGHLIGHTS.map(({ icon: Icon, label }) => (
+            <li key={label} className="flex items-center gap-3">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] border border-[#232323] bg-[#111111]">
                 <Icon size={14} className="text-[#4D8DFF]" />
-              </div>
+              </span>
               <span className="text-[13px] text-[#9A9A9A]">{label}</span>
-            </div>
+            </li>
           ))}
-        </div>
-      </div>
+        </ul>
+      </aside>
 
-      {/* ---- Right Form Panel ---- */}
-      <div className="relative flex-1 w-full flex flex-col items-center justify-center px-6 py-10 lg:max-w-[500px] mx-auto">
-        {/* Mobile brand */}
-        <div className="lg:hidden absolute top-10 left-1/2 -translate-x-1/2 flex items-center gap-2">
-          <div className="w-7 h-7 rounded-[8px] bg-[#111111] border border-[#232323] flex items-center justify-center flex-shrink-0">
-            <Zap size={14} color="#4D8DFF" fill="#4D8DFF" />
-          </div>
-          <span className="text-[16px] font-semibold text-white">NoteForge</span>
-        </div>
+      {/* ── Sağ: form kartı ─────────────────────────────────── */}
+      <main className="nf-auth-shell">
+        <div className="nf-auth-card">
 
-        <div className="w-full max-w-[360px] sm:max-w-[400px]">
-          {/* Heading */}
-          <div className="mb-10">
-            <h1 className="text-[26px] font-bold text-white mb-2 tracking-tight">
-              {mode === 'login' ? 'Tekrar hoş geldin.' : 'Hesabını oluştur.'}
+          {/* Kart başlığı */}
+          <div className="nf-auth-head">
+            <div className="nf-auth-brand">
+              <span className="nf-auth-brand-mark">
+                <Zap size={16} color="#4D8DFF" fill="#4D8DFF" />
+              </span>
+              <span className="text-[17px] font-semibold tracking-tight text-white">NoteForge</span>
+            </div>
+
+            <h1 className="nf-auth-title">
+              {isLogin ? 'Tekrar hoş geldin' : 'Hesabını oluştur'}
             </h1>
-            <p className="text-[15px] text-[#9A9A9A]">
-              {mode === 'login' ? 'Notlarına devam et.' : 'Ücretsiz, reklamsız, hep seninle.'}
+            <p className="nf-auth-subtitle">
+              {isLogin ? 'Notlarına kaldığın yerden devam et.' : 'Ücretsiz, reklamsız, hep seninle.'}
             </p>
           </div>
 
@@ -142,7 +144,6 @@ export function AuthPage() {
             disabled={loading}
             id="btn-google-auth"
           >
-            {/* Google icon */}
             <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
               <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -152,27 +153,21 @@ export function AuthPage() {
             Google ile devam et
           </Button>
 
-          <div className="flex items-center gap-3 my-5">
-            <Divider className="flex-1" />
-            <span className="text-[12px] text-[#555555] whitespace-nowrap">ya da e-posta ile</span>
-            <Divider className="flex-1" />
+          <div className="nf-auth-sep">
+            <span>ya da e-posta ile</span>
           </div>
 
-          {/* Error / Success banners */}
+          {/* Hata / başarı bildirimi */}
           {error && (
-            <div className="mb-4 px-4 py-3 rounded-[8px] bg-[#EF4444]/10 border border-[#EF4444]/30 text-[13px] text-[#EF4444]">
-              {error}
-            </div>
+            <div className="nf-auth-alert nf-auth-alert--error" role="alert">{error}</div>
           )}
           {success && (
-            <div className="mb-4 px-4 py-3 rounded-[8px] bg-[#22C55E]/10 border border-[#22C55E]/30 text-[13px] text-[#22C55E]">
-              {success}
-            </div>
+            <div className="nf-auth-alert nf-auth-alert--success" role="status">{success}</div>
           )}
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
-            {mode === 'register' && (
+            {!isLogin && (
               <Input
                 label="Ad Soyad"
                 type="text"
@@ -196,8 +191,12 @@ export function AuthPage() {
               id="input-email"
             />
 
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[11px] font-semibold uppercase tracking-widest text-[#9A9A9A]" htmlFor="input-password">
+            {/* Şifre — göster/gizle düğmesi input'un içinde */}
+            <div className="flex w-full flex-col gap-1.5">
+              <label
+                className="text-[11px] font-semibold tracking-widest uppercase text-[#9A9A9A]"
+                htmlFor="input-password"
+              >
                 Şifre
               </label>
               <div className="relative">
@@ -207,22 +206,34 @@ export function AuthPage() {
                   placeholder="En az 6 karakter"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                  autoComplete={isLogin ? 'current-password' : 'new-password'}
                   required
-                  className="w-full min-h-10 rounded-[8px] border border-[#232323] bg-[#0D0D0D] py-2 pl-3 pr-11 text-[15px] leading-5 text-white placeholder:text-[#555555] transition-colors focus:outline-none focus:border-[#4D8DFF] focus:ring-1 focus:ring-[#4D8DFF]"
+                  className="min-h-10 w-full rounded-[8px] border border-[#232323] bg-[#0D0D0D] py-2 pr-11 pl-3 text-[15px] leading-5 text-white transition-colors placeholder:text-[#555555] focus:border-[#4D8DFF] focus:ring-1 focus:ring-[#4D8DFF] focus:outline-none"
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-[6px] text-[#555555] transition-colors hover:bg-[#111111] hover:text-[#9A9A9A]"
+                  onClick={() => setShowPassword(v => !v)}
+                  className="absolute top-1/2 right-2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-[6px] text-[#555555] transition-colors hover:bg-[#111111] hover:text-[#9A9A9A]"
                   aria-label={showPassword ? 'Şifreyi gizle' : 'Şifreyi göster'}
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
+
+              {isLogin && (
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    className="text-[12px] leading-5 text-[#4D8DFF] hover:underline"
+                    onClick={() => {/* TODO: şifre sıfırlama sayfası */}}
+                  >
+                    Parolamı unuttum
+                  </button>
+                </div>
+              )}
             </div>
 
-            {mode === 'register' && (
+            {!isLogin && (
               <Input
                 label="Şifre Tekrar"
                 type={showPassword ? 'text' : 'password'}
@@ -235,53 +246,37 @@ export function AuthPage() {
               />
             )}
 
-            {mode === 'login' && (
-              <div className="flex justify-end -mt-1">
-                <button
-                  type="button"
-                  className="rounded-[6px] px-1 py-1 text-[13px] leading-5 text-[#4D8DFF] hover:underline"
-                  onClick={() => {/* TODO: forgot password page */}}
-                >
-                  Parolamı unuttum
-                </button>
-              </div>
-            )}
-
             <Button
               type="submit"
               variant="primary"
               size="lg"
               loading={loading}
-              className="w-full mt-6"
-              id={mode === 'login' ? 'btn-login' : 'btn-register'}
+              className="mt-2 w-full"
+              id={isLogin ? 'btn-login' : 'btn-register'}
             >
-              {mode === 'login' ? 'Giriş Yap' : 'Kayıt Ol'}
+              {isLogin ? 'Giriş Yap' : 'Kayıt Ol'}
             </Button>
           </form>
 
-          {/* Switch mode */}
-          <p className="mt-10 text-center text-[14px] leading-6 text-[#9A9A9A]">
-            {mode === 'login' ? (
-              <>Hesabın yok mu?{' '}
-                <button onClick={() => switchMode('register')} className="text-[#4D8DFF] hover:underline font-medium">
-                  Kayıt ol
-                </button>
-              </>
-            ) : (
-              <>Zaten hesabın var mı?{' '}
-                <button onClick={() => switchMode('login')} className="text-[#4D8DFF] hover:underline font-medium">
-                  Giriş yap
-                </button>
-              </>
-            )}
-          </p>
+          {/* Kart alt bilgisi */}
+          <div className="nf-auth-foot">
+            <p className="text-[14px] leading-6 text-[#9A9A9A]">
+              {isLogin ? 'Hesabın yok mu? ' : 'Zaten hesabın var mı? '}
+              <button
+                type="button"
+                onClick={() => switchMode(isLogin ? 'register' : 'login')}
+                className="font-medium text-[#4D8DFF] hover:underline"
+              >
+                {isLogin ? 'Kayıt ol' : 'Giriş yap'}
+              </button>
+            </p>
+            <p className="mt-2 text-[11px] leading-5 text-[#555555]">
+              Ücretsiz, reklamsız, sonsuz.
+            </p>
+          </div>
 
-          {/* Reassurance */}
-          <p className="mt-4 text-center text-[11px] leading-5 text-[#555555]">
-            Ücretsiz, reklamsız, sonsuz.
-          </p>
         </div>
-      </div>
+      </main>
     </div>
   )
 }

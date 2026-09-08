@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, Grid, List, Clock, ArrowUpDown, Trash2, FolderOpen, Menu } from 'lucide-react'
+import { Search, Grid, List, ArrowUpDown, Trash2, FolderOpen, Menu } from 'lucide-react'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
@@ -98,7 +98,7 @@ export function NoteListPage() {
   return (
     <div style={{
       display:         'flex',
-      height:          '100vh',
+      height:          '100dvh',
       width:           '100%',
       backgroundColor: '#000000',
       overflow:        'hidden',
@@ -126,21 +126,26 @@ export function NoteListPage() {
       }}>
 
         {/* ── Page header ────────────────────────────────── */}
-        <div style={{
-          padding:      '28px 32px 16px',
-          flexShrink:   0,
-          borderBottom: '1px solid #111111',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '16px' }}>
+        <div
+          className="px-4 pt-5 pb-3 md:px-8 md:pt-7 md:pb-4"
+          style={{
+            flexShrink:   0,
+            borderBottom: '1px solid #111111',
+          }}
+        >
+          {/* Mobil menü düğmesi — kendi satırında, böylece başlık
+              arama kutusu ve not satırlarıyla aynı sol kenara oturur */}
+          <button
+            className="md:hidden mb-3 -ml-2 flex h-9 w-9 items-center justify-center rounded-lg text-[#9A9A9A] transition-colors hover:bg-[#111111] hover:text-white"
+            onClick={() => setIsSidebarOpen(true)}
+            aria-label="Menü"
+          >
+            <Menu size={20} />
+          </button>
+
+          <div className="mb-4 flex items-end justify-between gap-4">
             {/* Title + count */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <button
-                className="md:hidden p-2 -ml-2 rounded-lg text-[#9A9A9A] hover:bg-[#111111] hover:text-white transition-colors"
-                onClick={() => setIsSidebarOpen(true)}
-              >
-                <Menu size={20} />
-              </button>
-              <div>
+            <div style={{ minWidth: 0 }}>
               <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#ffffff', lineHeight: 1.1 }}>
                 {sectionTitle()}
               </h1>
@@ -150,10 +155,9 @@ export function NoteListPage() {
                 </span>
               )}
             </div>
-            </div>
 
             {/* Controls: sort + view toggle */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
               <Button variant="icon" size="sm" title="Sırala" id="btn-sort">
                 <ArrowUpDown size={14} />
               </Button>
@@ -247,7 +251,7 @@ export function NoteListPage() {
         </div>
 
         {/* ── Scrollable note area ───────────────────────── */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '20px 32px 32px' }}>
+        <div className="px-4 pt-4 pb-8 md:px-8 md:pt-5" style={{ flex: 1, overflowY: 'auto' }}>
 
           {/* Error banner */}
           {error && (
@@ -285,11 +289,15 @@ export function NoteListPage() {
             /* ── List view ── */
             <>
               {/* Column header row */}
+              {/* NoteRow ile birebir aynı kutu modeli: 10px padding +
+                  2px şeffaf sol kenarlık → etiketler satır metniyle hizalı */}
               <div style={{
                 display:       'flex',
                 alignItems:    'center',
                 gap:           '12px',
                 padding:       '0 10px 8px',
+                border:        '1px solid transparent',
+                borderLeft:    '2px solid transparent',
                 borderBottom:  '1px solid #111111',
                 marginBottom:  '4px',
               }}>

@@ -15,6 +15,7 @@ import {
   DEFAULT_PREFERENCES,
 } from '@/features/settings/preferencesService'
 import type { UserPreferencesUpdate } from '@/types/database'
+import { useOverflowAffordance } from '@/hooks/useOverflowAffordance'
 
 type Tab = 'account' | 'typography' | 'language' | 'notifications' | 'shortcuts'
 
@@ -23,6 +24,9 @@ export function SettingsPage() {
   const navigate = useNavigate()
   const { user, profile, preferences, setProfile, setPreferences } = useAuthStore()
   
+  // Dar ekranda sekme şeridi yatay kayar; kenar solması bunu belli eder
+  const tabStripRef = useOverflowAffordance<HTMLDivElement>([])
+
   const [activeTab, setActiveTab] = useState<Tab>('account')
   const [loading, setLoading] = useState(false)
   const [successMsg, setSuccessMsg] = useState('')
@@ -152,9 +156,10 @@ export function SettingsPage() {
       </div>
 
       {/* Tabs */}
-      <div 
+      <div
+        ref={tabStripRef}
         style={{ display: 'flex', gap: '8px', marginBottom: '32px', borderBottom: '1px solid var(--color-border)', paddingBottom: '12px', overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
-        className="[&::-webkit-scrollbar]:hidden"
+        className="nf-scroll-x [&::-webkit-scrollbar]:hidden"
       >
         <TabButton active={activeTab === 'account'} onClick={() => setActiveTab('account')}>
           {t('settings.tab.account')}

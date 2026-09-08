@@ -141,6 +141,19 @@ export function Sidebar({
   const [creatingTag, setCreatingTag] = useState(false)
   const [savingTag, setSavingTag] = useState(false)
 
+  // Mobil drawer açıkken arka plan kaymasın; Escape ile kapansın
+  useEffect(() => {
+    if (!isOpen) return
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose?.() }
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = prevOverflow
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [isOpen, onClose])
+
   const handleSignOut = async () => {
     await signOut()
     navigate('/giris', { replace: true })
@@ -229,10 +242,12 @@ export function Sidebar({
           onClick={onClose}
         />
       )}
-      <aside 
+      <aside
+        id="app-sidebar"
+        aria-hidden={!isOpen ? undefined : false}
         className={`
           fixed md:relative inset-y-0 left-0 z-50
-          w-[280px] md:w-[280px]
+          w-[min(85vw,280px)] md:w-[280px]
           flex flex-col h-full shrink-0
           transform transition-transform duration-300 ease-in-out
           ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
