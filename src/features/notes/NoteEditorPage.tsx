@@ -17,11 +17,15 @@ import { fetchNote, updateNote, createNote } from './notesService'
 import { useFolders } from './useFolders'
 import { useTags } from './useTags'
 import { addTagToNote, removeTagFromNote } from './tagsService'
-import { exportAsMarkdown, exportAsText, exportAsDocx, exportAsPdf } from '@/lib/exportNote'
+import {
+  exportAsMarkdown, exportAsText, exportAsDocx, exportAsPdf, assignReadingOrder,
+  type ExportExtras,
+} from '@/lib/exportNote'
 import { useAuthStore } from '@/store/authStore'
 import type { NoteWithTags, Tag as TagType } from '@/types/database'
 import { ImageCanvas, type ImageCanvasHandle } from '@/components/editor/ImageCanvas'
 import { GhostText } from '@/components/editor/GhostText'
+import { ClickToType, placeCaretAt } from '@/components/editor/ClickToType'
 import { useAiCompletion } from './useAiCompletion'
 import { useOverflowAffordance } from '@/hooks/useOverflowAffordance'
 import { runAiAction, isAiConfigured, AiError, type AiAction } from '@/lib/aiService'
@@ -33,7 +37,7 @@ type ExportFormat = 'pdf' | 'docx' | 'txt' | 'markdown'
 const AUTOSAVE_DELAY = 1500
 
 const EXPORT_FORMATS: { id: ExportFormat; label: string; desc: string; icon: string }[] = [
-  { id: 'pdf',      label: 'PDF Belgesi',          desc: 'Yeni sekmede aç → Yazdır → PDF kaydet', icon: '⬜' },
+  { id: 'pdf',      label: 'PDF Belgesi',          desc: 'Yazdırma penceresinde "PDF olarak kaydet"', icon: '⬜' },
   { id: 'docx',     label: 'Word Belgesi (.docx)',  desc: 'Düzenlenebilir format',                  icon: 'W'  },
   { id: 'txt',      label: 'Düz Metin (.txt)',      desc: 'Evrensel uyumluluk',                     icon: 'T'  },
   { id: 'markdown', label: 'Markdown (.md)',         desc: 'Geliştirici dostu format',               icon: '#'  },
@@ -154,14 +158,17 @@ export function NoteEditorPage() {
   /** Editör yok edildikten sonra bile kaydedebilmek için son içerik anlık görüntüsü */
   const pendingRef    = useRef<{ json: JSONContent; text: string } | null>(null)
   const scheduleSaveRef = useRef<() => void>(() => {})
+  /** İçeriği editöre yüklenmiş notun id'si. Yüklenmeden kaydetmek notu boş içerikle ezer. */
+  const hydratedIdRef = useRef<string | null>(null)
 
   // The initial JSON content loaded from DB — used to hydrate the editor
-  const [initialJson, setInitialJson] = useState<JSONContent | null>(null)
+  const [initialJson, setInitialJson] = useState<{ id: string; json: JSONContent } | null>(null)
 
   /* ─── Otomatik kaydetme ──────────────────────────────────── */
   const persist = useCallback(async (noteId: string | undefined = idRef.current) => {
     if (!noteId) return
     if (saveTimerRef.current) { clearTimeout(saveTimerRef.current); saveTimerRef.current = null }
+    if (hydratedIdRef.current !== noteId) return
 
     const ed = editorRef.current
     const snapshot = ed && !ed.isDestroyed
@@ -184,6 +191,7 @@ export function NoteEditorPage() {
   }, [])
 
   const scheduleSave = useCallback(() => {
+    if (hydratedIdRef.current !== idRef.current) return
     dirtyRef.current = true
     setSaveState('unsaved')
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
@@ -206,6 +214,7 @@ export function NoteEditorPage() {
           node.type.name === 'heading' ? 'Başlık' : 'Yazmaya başla…',
       }),
       GhostText,
+      ClickToType,
     ],
     content: { type: 'doc', content: [{ type: 'paragraph' }] },
     editorProps: {
@@ -242,17 +251,21 @@ export function NoteEditorPage() {
 
         // Hydrate TipTap from content_json, falling back to markdown text
         const jsonContent = n.content_json as JSONContent | null
+        let json: JSONContent
         if (jsonContent && typeof jsonContent === 'object' && 'type' in jsonContent) {
-          setInitialJson(jsonContent)
+          json = jsonContent
         } else if (n.content_markdown) {
-          const paragraphs = n.content_markdown.split('\n').map(line => ({
-            type: 'paragraph' as const,
-            content: line ? [{ type: 'text' as const, text: line }] : [],
-          }))
-          setInitialJson({ type: 'doc', content: paragraphs })
+          json = {
+            type: 'doc',
+            content: n.content_markdown.split('\n').map(line => ({
+              type: 'paragraph' as const,
+              content: line ? [{ type: 'text' as const, text: line }] : [],
+            })),
+          }
         } else {
-          setInitialJson({ type: 'doc', content: [{ type: 'paragraph' }] })
+          json = { type: 'doc', content: [{ type: 'paragraph' }] }
         }
+        setInitialJson({ id: n.id, json })
 
         setWordCount(countWords(n.content_markdown ?? ''))
         setCharCount((n.content_markdown ?? '').length)
@@ -269,7 +282,9 @@ export function NoteEditorPage() {
   // When initialJson is ready and editor is available, hydrate it
   useEffect(() => {
     if (!editor || !initialJson || editor.isDestroyed) return
-    editor.commands.setContent(initialJson, { emitUpdate: false })
+    if (saveTimerRef.current) { clearTimeout(saveTimerRef.current); saveTimerRef.current = null }
+    editor.commands.setContent(initialJson.json, { emitUpdate: false })
+    hydratedIdRef.current = initialJson.id
     pendingRef.current = null
     dirtyRef.current   = false
     setSaveState('saved')
@@ -278,7 +293,8 @@ export function NoteEditorPage() {
   /* ─── Salt-okunur önizleme modu ──────────────────────────── */
   useEffect(() => {
     if (!editor || editor.isDestroyed) return
-    editor.setEditable(!previewMode)
+    // false: "update" olayı yayma — yayarsa otomatik kayıt tetiklenir
+    editor.setEditable(!previewMode, false)
     editor.view.dom.classList.toggle('is-preview', previewMode)
   }, [editor, previewMode])
 
@@ -377,6 +393,16 @@ export function NoteEditorPage() {
       e.preventDefault()
       editor?.commands.focus('start')
     }
+  }
+
+  /** Metin kutusunun dışındaki boş alana tıklama → o noktadan yazmaya başla */
+  const handleSurfaceMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (previewMode || !editor || editor.isDestroyed || e.button !== 0 || e.detail > 1) return
+    const target = e.target as HTMLElement
+    // Yalnızca boş zemin: başlık, etiketler, görseller ve metnin kendisi hariç
+    if (target !== e.currentTarget && !target.classList.contains('editor-content')) return
+    if (e.clientY < editor.view.dom.getBoundingClientRect().top) return
+    if (placeCaretAt(editor.view, e.clientX, e.clientY)) e.preventDefault()
   }
 
   const handleNewNote = async () => {
@@ -493,22 +519,39 @@ export function NoteEditorPage() {
   const currentFolder = folders.find(f => f.id === note?.folder_id) ?? null
 
   /* ─── Export ────────────────────────────────────────────── */
+  /** Serbest görselleri, notta denk geldikleri bloklara göre sıralanmış halde toplar. */
+  const collectExportExtras = (ed: Editor): ExportExtras => {
+    const data = imageCanvasRef.current?.getExportData()
+    if (!data) return {}
+    const root = ed.view.dom.getBoundingClientRect()
+    const blocks: { top: number; bottom: number }[] = []
+    ed.state.doc.forEach((_node, offset) => {
+      const el = ed.view.nodeDOM(offset)
+      const r = el instanceof HTMLElement ? el.getBoundingClientRect() : null
+      blocks.push(r
+        ? { top: r.top - root.top, bottom: r.bottom - root.top }
+        : { top: Infinity, bottom: Infinity })
+    })
+    return { images: assignReadingOrder(data.images, blocks), layout: data.layout }
+  }
+
   const handleExport = async (fmt: ExportFormat) => {
     if (!editor || exportingFormat) return
-    const json  = editor.getJSON()
+    const json   = editor.getJSON()
+    const extras = collectExportExtras(editor)
     setExportingFormat(fmt)
     try {
       switch (fmt) {
-        case 'markdown': await exportAsMarkdown(json, title); break
-        case 'txt':      await exportAsText(json, title);     break
-        case 'docx':     await exportAsDocx(json, title);     break
-        case 'pdf':      exportAsPdf(json, title);            break  // sync — opens popup
+        case 'markdown': await exportAsMarkdown(json, title, extras); break
+        case 'txt':      await exportAsText(json, title, extras);     break
+        case 'docx':     await exportAsDocx(json, title, extras);     break
+        case 'pdf':      await exportAsPdf(json, title, extras);      break
       }
     } catch {
       setToast({ kind: 'error', message: 'Dışa aktarma başarısız oldu.' })
     } finally {
       setExportingFormat(null)
-      if (fmt !== 'pdf') setShowExport(false)
+      setShowExport(false)
     }
   }
 
@@ -753,7 +796,7 @@ export function NoteEditorPage() {
         )}
 
         {/* ── Editor scrollable area ───────────────────── */}
-        <div className="editor-surface editor-area">
+        <div className="editor-surface editor-area" onMouseDown={handleSurfaceMouseDown}>
           <div className="editor-content">
 
             {/* Title */}
@@ -935,9 +978,16 @@ export function NoteEditorPage() {
               </p>
             )}
 
-            {/* ── Image Canvas — drag/drop/resize/move ───── */}
+            {/* ── Serbest görsel katmanı (tüm notu kaplar) ── */}
             {user && (
-              <ImageCanvas ref={imageCanvasRef} noteId={note.id} userId={user.id} />
+              <ImageCanvas
+                key={note.id}
+                ref={imageCanvasRef}
+                noteId={note.id}
+                userId={user.id}
+                readOnly={previewMode}
+                onError={message => setToast({ kind: 'error', message })}
+              />
             )}
           </div>
         </div>
@@ -1042,7 +1092,7 @@ export function NoteEditorPage() {
 
           <div style={{ borderTop: '1px solid #1A1A1A', padding: '12px 16px' }}>
             <p style={{ fontSize: '11px', color: '#555555', textAlign: 'center' }}>
-              PDF için: aç → Yazdır (Ctrl+P) → "PDF olarak kaydet"
+              PDF için: açılan yazdırma penceresinde hedef olarak "PDF olarak kaydet"i seç
             </p>
           </div>
         </div>

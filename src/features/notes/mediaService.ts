@@ -16,6 +16,15 @@ export interface PositionData {
   y: number
   width: number
   height: number
+  rotation?: number
+  /** Görseller arası katman sırası */
+  z?: number
+  opacity?: number
+  locked?: boolean
+  /** 'overlay': koordinatlar notun en üstüne göre. Yoksa eski (metnin altı) sistem. */
+  layer?: 'overlay'
+  /** "Sayfa genişliğine sığdır" öncesi kutu; tekrar tıklanınca buna dönülür */
+  fitRestore?: { x: number; y: number; width: number; height: number; rotation: number } | null
 }
 
 // ── Upload image to Supabase Storage ──────────────────────────
@@ -82,10 +91,23 @@ export async function updateMediaAssetPosition(
   if (error) throw new Error(error.message)
 }
 
-// ── Delete a media_asset record (and optionally its file) ─────
-export async function deleteMediaAsset(id: string, storagePath?: string): Promise<void> {
+// ── Extract the storage path from a public note-images URL ────
+export function storagePathFromUrl(url: string): string | null {
+  const marker = '/note-images/'
+  const idx = url.indexOf(marker)
+  if (idx === -1) return null
+  return decodeURIComponent(url.slice(idx + marker.length))
+}
+
+export async function removeNoteImageFile(storagePath: string): Promise<void> {
+  const { error } = await supabase.storage.from('note-images').remove([storagePath])
+  if (error) throw new Error(error.message)
+}
+
+// ── Delete a media_asset record (and its stored file) ──────────
+export async function deleteMediaAsset(id: string, storagePath?: string | null): Promise<void> {
   if (storagePath) {
-    await supabase.storage.from('note-images').remove([storagePath])
+    await removeNoteImageFile(storagePath).catch(() => {})
   }
   const { error } = await supabase.from('media_assets').delete().eq('id', id)
   if (error) throw new Error(error.message)
