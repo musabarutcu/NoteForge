@@ -642,6 +642,7 @@ code:not(pre code) {
 }
 
 .editor-content {
+  position:  relative;   /* görsel katmanının referansı */
   width:     100%;
   max-width: var(--editor-max-width, 760px);
   padding:   32px 24px 96px;
@@ -652,6 +653,224 @@ code:not(pre code) {
     max-width: none;       /* mobilde tam genişlik */
     padding:   20px 16px 72px;
   }
+}
+
+/* ============================================================
+   Serbest görsel katmanı (metnin üstünde, metinden bağımsız)
+   ============================================================ */
+.nf-image-layer {
+  position:       absolute;
+  inset:          0;
+  z-index:        20;          /* metnin üstünde, açılır menülerin (z 50) altında */
+  pointer-events: none;        /* boş alana tıklama metne geçer */
+}
+.nf-image-layer.is-drop {
+  outline:        2px dashed rgba(77, 141, 255, 0.55);
+  outline-offset: -6px;
+  border-radius:  12px;
+  background:     rgba(77, 141, 255, 0.04);
+}
+
+.nf-img {
+  position:       absolute;
+  pointer-events: auto;
+  cursor:         grab;
+  user-select:    none;
+  outline:        none;
+  border-radius:  4px;
+  transform-origin: center center;
+}
+.nf-img:active       { cursor: grabbing; }
+.nf-img.is-locked,
+.nf-img.is-readonly  { cursor: default; }
+.nf-img.is-readonly  { pointer-events: none; }
+.nf-img:not(.is-readonly):hover { box-shadow: 0 0 0 1px rgba(77, 141, 255, 0.45); }
+.nf-img.is-selected  { box-shadow: 0 0 0 2px #4D8DFF, 0 8px 28px rgba(0, 0, 0, 0.45); }
+.nf-img.is-selected.is-locked { box-shadow: 0 0 0 2px #6B6B6B; }
+
+.nf-img > img {
+  display:        block;
+  width:          100%;
+  height:         100%;
+  object-fit:     cover;
+  border-radius:  4px;
+  pointer-events: none;
+}
+
+/* Boyutlandırma tutamaçları */
+.nf-img-h {
+  position:         absolute;
+  width:            12px;
+  height:           12px;
+  background:       #fff;
+  border:           2px solid #4D8DFF;
+  border-radius:    3px;
+  box-shadow:       0 1px 4px rgba(0, 0, 0, 0.4);
+  touch-action:     none;
+  z-index:          2;
+}
+.nf-img-h::after {             /* dokunmatik için geniş tıklama alanı */
+  content: '';
+  position: absolute;
+  inset: -10px;
+}
+.nf-img-h--nw { top: -6px;  left: -6px;  cursor: nwse-resize; }
+.nf-img-h--se { bottom: -6px; right: -6px; cursor: nwse-resize; }
+.nf-img-h--ne { top: -6px;  right: -6px; cursor: nesw-resize; }
+.nf-img-h--sw { bottom: -6px; left: -6px; cursor: nesw-resize; }
+.nf-img-h--n,
+.nf-img-h--s  { left: calc(50% - 10px); width: 20px; height: 8px; cursor: ns-resize; }
+.nf-img-h--n  { top: -4px; }
+.nf-img-h--s  { bottom: -4px; }
+.nf-img-h--e,
+.nf-img-h--w  { top: calc(50% - 10px); width: 8px; height: 20px; cursor: ew-resize; }
+.nf-img-h--e  { right: -4px; }
+.nf-img-h--w  { left: -4px; }
+
+/* Döndürme tutamacı */
+.nf-img-rot {
+  position:     absolute;
+  top:          -34px;
+  left:         calc(50% - 8px);
+  width:        16px;
+  height:       16px;
+  border-radius: 50%;
+  background:   #4D8DFF;
+  border:       2px solid #fff;
+  box-shadow:   0 1px 4px rgba(0, 0, 0, 0.4);
+  cursor:       grab;
+  touch-action: none;
+  z-index:      2;
+}
+.nf-img-rot::before {          /* görsele bağlayan çizgi */
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 14px;
+  width: 2px;
+  height: 20px;
+  margin-left: -1px;
+  background: #4D8DFF;
+}
+.nf-img-rot::after {
+  content: '';
+  position: absolute;
+  inset: -10px;
+}
+
+.nf-img-lock {
+  position:       absolute;
+  top:            6px;
+  right:          6px;
+  display:        flex;
+  padding:        4px;
+  border-radius:  6px;
+  background:     rgba(0, 0, 0, 0.65);
+  color:          #D4D4D4;
+  pointer-events: none;
+}
+
+/* Hizalama kılavuzları */
+.nf-img-guide {
+  position:       absolute;
+  background:     #FF4DA6;
+  pointer-events: none;
+  z-index:        9000;
+}
+.nf-img-guide--v { top: 0; bottom: 0; width: 1px; }
+.nf-img-guide--h { left: 0; right: 0; height: 1px; }
+
+/* Seçili görsel araç çubuğu + ölçü göstergesi */
+.nf-img-toolbar,
+.nf-img-hud {
+  position:        absolute;
+  pointer-events:  auto;
+  display:         flex;
+  align-items:     center;
+  gap:             2px;
+  padding:         4px;
+  width:           max-content;
+  max-width:       100%;
+  flex-wrap:       wrap;
+  background:      #0D0D0D;
+  border:          1px solid #232323;
+  border-radius:   10px;
+  box-shadow:      0 10px 32px rgba(0, 0, 0, 0.6);
+}
+.nf-img-hud {
+  z-index:         9001;
+  padding:         5px 10px;
+  font-size:       12px;
+  font-variant-numeric: tabular-nums;
+  color:           #D4D4D4;
+  pointer-events:  none;
+}
+.nf-img-toolbar-btn {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  width:           30px;
+  height:          30px;
+  border:          none;
+  border-radius:   7px;
+  background:      transparent;
+  color:           #9A9A9A;
+  cursor:          pointer;
+  transition:      background 150ms, color 150ms;
+}
+.nf-img-toolbar-btn:hover     { background: #1A1A1A; color: #fff; }
+.nf-img-toolbar-btn.is-active { background: rgba(77, 141, 255, 0.14); color: #4D8DFF; }
+.nf-img-toolbar-btn.is-danger:hover { background: rgba(239, 68, 68, 0.14); color: #EF4444; }
+.nf-img-toolbar-sep {
+  width:      1px;
+  height:     18px;
+  margin:     0 3px;
+  background: #232323;
+}
+.nf-img-opacity {
+  display:     flex;
+  align-items: center;
+  gap:         6px;
+  padding:     0 6px;
+  color:       #9A9A9A;
+  font-size:   11px;
+  font-variant-numeric: tabular-nums;
+}
+.nf-img-opacity input { width: 72px; accent-color: #4D8DFF; cursor: pointer; }
+.nf-img-opacity span  { width: 30px; text-align: right; }
+
+.nf-img-status {
+  position:      fixed;
+  left:          50%;
+  bottom:        56px;
+  transform:     translateX(-50%);
+  z-index:       70;
+  display:       flex;
+  align-items:   center;
+  gap:           8px;
+  padding:       8px 14px;
+  border-radius: 999px;
+  background:    #0D0D0D;
+  border:        1px solid #1E2E4A;
+  color:         #4D8DFF;
+  font-size:     13px;
+  white-space:   nowrap;
+  box-shadow:    0 10px 32px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+.nf-img-spinner {
+  width:         13px;
+  height:        13px;
+  border-radius: 50%;
+  border:        2px solid rgba(77, 141, 255, 0.25);
+  border-top-color: #4D8DFF;
+  animation:     nf-spin 0.7s linear infinite;
+}
+@keyframes nf-spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 640px) {
+  .nf-img-opacity input { width: 56px; }
+  .nf-img-toolbar-btn   { width: 32px; height: 32px; }
 }
 
 /* ============================================================
