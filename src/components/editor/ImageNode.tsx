@@ -1,250 +1,226 @@
-import { useRef, useState, useEffect, useCallback } from 'react'
-import { Trash2, GripVertical } from 'lucide-react'
-import { updateMediaAssetPosition, type MediaAsset, type PositionData } from '@/features/notes/mediaService'
-import { debounce } from '@/lib/utils'
+import { useRef } from 'react'
+import { Lock } from 'lucide-react'
+import type { MediaAsset } from '@/features/notes/mediaService'
+import {
+  HANDLES, angleFrom, isCorner, resizeBox,
+  type Box, type Handle,
+} from './imageGeometry'
 
-/* ─── Constants ───────────────────────────────────────────── */
-const MIN_W = 80
-const MIN_H = 60
-const HANDLE_SIZE = 10
+export type ChangeMode = 'drag' | 'resize' | 'rotate'
 
-/* ─── Resize handle positions ────────────────────────────── */
-type HandlePos = 'nw' | 'ne' | 'sw' | 'se'
-const HANDLES: HandlePos[] = ['nw', 'ne', 'sw', 'se']
-
-const handleStyle = (pos: HandlePos): React.CSSProperties => {
-  const base: React.CSSProperties = {
-    position: 'absolute',
-    width: HANDLE_SIZE, height: HANDLE_SIZE,
-    backgroundColor: '#4D8DFF',
-    border: '2px solid #fff',
-    borderRadius: '2px',
-    zIndex: 10,
-  }
-  if (pos === 'nw') return { ...base, top: -HANDLE_SIZE / 2, left: -HANDLE_SIZE / 2, cursor: 'nw-resize' }
-  if (pos === 'ne') return { ...base, top: -HANDLE_SIZE / 2, right: -HANDLE_SIZE / 2, cursor: 'ne-resize' }
-  if (pos === 'sw') return { ...base, bottom: -HANDLE_SIZE / 2, left: -HANDLE_SIZE / 2, cursor: 'sw-resize' }
-  return       { ...base, bottom: -HANDLE_SIZE / 2, right: -HANDLE_SIZE / 2, cursor: 'se-resize' }
-}
-
-/* ─── Props ───────────────────────────────────────────────── */
 interface ImageNodeProps {
   asset: MediaAsset
+  box: Box
+  z: number
+  opacity: number
+  locked: boolean
+  selected: boolean
+  readOnly: boolean
   containerWidth: number
+  onSelect: (id: string) => void
+  onDeselect: () => void
+  onChange: (id: string, box: Box, mode: ChangeMode, snap: boolean) => void
+  onCommit: (id: string) => void
+  onInteract: (active: boolean) => void
+  onHud: (text: string | null) => void
+  onNudge: (id: string, dx: number, dy: number) => void
+  onZ: (id: string, dir: 'front' | 'back') => void
   onDelete: (id: string) => void
+  onNaturalRatio: (id: string, ratio: number) => void
 }
 
-/* ─── Component ───────────────────────────────────────────── */
-export function ImageNode({ asset, containerWidth, onDelete }: ImageNodeProps) {
-  const DEFAULT_W = Math.min(400, containerWidth * 0.8)
-  const DEFAULT_H = 280
+type Kind = 'drag' | 'resize' | 'rotate'
 
-  const pd = asset.position_data
-  const [pos, setPos] = useState<PositionData>({
-    x: pd?.x ?? 0,
-    y: pd?.y ?? 0,
-    width: pd?.width ?? DEFAULT_W,
-    height: pd?.height ?? DEFAULT_H,
-  })
-  const [selected, setSelected]   = useState(false)
-  const [dragging, setDragging]   = useState(false)
-  const [resizing, setResizing]   = useState<HandlePos | null>(null)
+/** Sürüklerken imleç kaydırma alanının kenarına bu kadar yaklaşınca otomatik kaydır. */
+const AUTOSCROLL_EDGE = 56
+const DRAG_THRESHOLD = 3
 
-  const posRef     = useRef(pos)
-  const dragStart  = useRef({ mx: 0, my: 0, ox: 0, oy: 0 })
-  const resizeStart = useRef({ mx: 0, my: 0, ox: 0, oy: 0, ow: 0, oh: 0 })
-  const assetId    = asset.id
+export function ImageNode(props: ImageNodeProps) {
+  const { asset, box, z, opacity, locked, selected, readOnly } = props
+  const propsRef = useRef(props)
+  propsRef.current = props
+  const nodeRef = useRef<HTMLDivElement>(null)
 
-  posRef.current = pos
+  const begin = (e: React.PointerEvent, kind: Kind, handle?: Handle) => {
+    const p = propsRef.current
+    if (p.readOnly || e.button !== 0) return
 
-  // ── Debounced Supabase save ──────────────────────────────
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const persistPos = useCallback(
-    debounce((p: PositionData) => {
-      updateMediaAssetPosition(assetId, p).catch(console.error)
-    }, 600),
-    [assetId],
-  )
-
-  // ── Click outside → deselect ─────────────────────────────
-  useEffect(() => {
-    if (!selected) return
-    const handler = (e: MouseEvent) => {
-      const el = document.getElementById(`img-node-${assetId}`)
-      if (el && !el.contains(e.target as Node)) setSelected(false)
+    // Dokunmatikte seçili olmayan görsele ilk dokunuş yalnızca seçer,
+    // böylece görselin üzerinden sayfa kaydırılabilir.
+    if (e.pointerType === 'touch' && !p.selected && kind === 'drag') {
+      p.onSelect(asset.id)
+      return
     }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [selected, assetId])
 
-  // ── Drag (move) ──────────────────────────────────────────
-  const onDragMouseDown = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    setDragging(true)
-    setSelected(true)
-    dragStart.current = {
-      mx: e.clientX,
-      my: e.clientY,
-      ox: posRef.current.x,
-      oy: posRef.current.y,
-    }
-  }
+    nodeRef.current?.focus({ preventScroll: true })
+    p.onSelect(asset.id)
+    if (p.locked) return
 
-  useEffect(() => {
-    if (!dragging) return
-    const onMove = (e: MouseEvent) => {
-      const dx = e.clientX - dragStart.current.mx
-      const dy = e.clientY - dragStart.current.my
-      const next = { ...posRef.current, x: dragStart.current.ox + dx, y: dragStart.current.oy + dy }
-      setPos(next)
-      posRef.current = next
+    const scrollEl = nodeRef.current?.closest('.editor-area') as HTMLElement | null
+    const s = {
+      startBox: p.box,
+      px0: e.clientX,
+      py0: e.clientY,
+      scroll0: scrollEl?.scrollTop ?? 0,
+      lastX: e.clientX,
+      lastY: e.clientY,
+      shift: e.shiftKey,
+      alt: e.altKey,
+      moved: kind !== 'drag',
+      raf: 0,
     }
-    const onUp = () => {
-      setDragging(false)
-      persistPos(posRef.current)
-    }
-    window.addEventListener('mousemove', onMove)
-    window.addEventListener('mouseup', onUp)
-    return () => {
-      window.removeEventListener('mousemove', onMove)
-      window.removeEventListener('mouseup', onUp)
-    }
-  }, [dragging, persistPos])
+    if (s.moved) p.onInteract(true)
 
-  // ── Resize ───────────────────────────────────────────────
-  const onResizeMouseDown = (e: React.MouseEvent, handle: HandlePos) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setResizing(handle)
-    setSelected(true)
-    resizeStart.current = {
-      mx: e.clientX,
-      my: e.clientY,
-      ox: posRef.current.x,
-      oy: posRef.current.y,
-      ow: posRef.current.width,
-      oh: posRef.current.height,
-    }
-  }
+    const apply = () => {
+      const cur = propsRef.current
+      const dx = s.lastX - s.px0
+      const dy = s.lastY - s.py0 + ((scrollEl?.scrollTop ?? 0) - s.scroll0)
 
-  useEffect(() => {
-    if (!resizing) return
-    const { mx, my, ox, oy, ow, oh } = resizeStart.current
-    const onMove = (e: MouseEvent) => {
-      const dx = e.clientX - mx
-      const dy = e.clientY - my
-      let { x, y, width, height } = posRef.current
-
-      if (resizing === 'se') {
-        width  = Math.max(MIN_W, ow + dx)
-        height = Math.max(MIN_H, oh + dy)
-      } else if (resizing === 'sw') {
-        width  = Math.max(MIN_W, ow - dx)
-        height = Math.max(MIN_H, oh + dy)
-        x      = ox + ow - width
-      } else if (resizing === 'ne') {
-        width  = Math.max(MIN_W, ow + dx)
-        height = Math.max(MIN_H, oh - dy)
-        y      = oy + oh - height
-      } else if (resizing === 'nw') {
-        width  = Math.max(MIN_W, ow - dx)
-        height = Math.max(MIN_H, oh - dy)
-        x      = ox + ow - width
-        y      = oy + oh - height
+      if (!s.moved) {
+        if (Math.hypot(dx, dy) < DRAG_THRESHOLD) return
+        s.moved = true
+        cur.onInteract(true)
       }
 
-      const next: PositionData = { x, y, width, height }
-      setPos(next)
-      posRef.current = next
+      if (kind === 'drag') {
+        cur.onChange(asset.id, { ...s.startBox, x: s.startBox.x + dx, y: s.startBox.y + dy }, 'drag', !s.alt)
+      } else if (kind === 'resize' && handle) {
+        // Köşeler oranı korur; Shift ile serbest boyutlandırma
+        const next = resizeBox(s.startBox, handle, dx, dy, isCorner(handle) && !s.shift, cur.containerWidth)
+        cur.onChange(asset.id, next, 'resize', false)
+        cur.onHud(`${Math.round(next.width)} × ${Math.round(next.height)}`)
+      } else if (kind === 'rotate' && nodeRef.current) {
+        const r = nodeRef.current.getBoundingClientRect()
+        const deg = angleFrom(r.left + r.width / 2, r.top + r.height / 2, s.lastX, s.lastY, s.shift)
+        cur.onChange(asset.id, { ...cur.box, rotation: deg }, 'rotate', false)
+        cur.onHud(`${Math.round(deg)}°`)
+      }
+    }
+
+    const tick = () => {
+      if (scrollEl && s.moved && kind !== 'rotate') {
+        const r = scrollEl.getBoundingClientRect()
+        let v = 0
+        if (s.lastY < r.top + AUTOSCROLL_EDGE) v = -(r.top + AUTOSCROLL_EDGE - s.lastY) / 3
+        else if (s.lastY > r.bottom - AUTOSCROLL_EDGE) v = (s.lastY - (r.bottom - AUTOSCROLL_EDGE)) / 3
+        v = Math.max(-24, Math.min(24, v))
+        if (Math.abs(v) >= 1) {
+          const before = scrollEl.scrollTop
+          scrollEl.scrollTop += v
+          if (scrollEl.scrollTop !== before) apply()
+        }
+      }
+      s.raf = requestAnimationFrame(tick)
+    }
+
+    const onMove = (ev: PointerEvent) => {
+      s.lastX = ev.clientX
+      s.lastY = ev.clientY
+      s.shift = ev.shiftKey
+      s.alt = ev.altKey
+      apply()
     }
     const onUp = () => {
-      setResizing(null)
-      persistPos(posRef.current)
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerup', onUp)
+      window.removeEventListener('pointercancel', onUp)
+      cancelAnimationFrame(s.raf)
+      const cur = propsRef.current
+      cur.onHud(null)
+      cur.onInteract(false)
+      if (s.moved) cur.onCommit(asset.id)
     }
-    window.addEventListener('mousemove', onMove)
-    window.addEventListener('mouseup', onUp)
-    return () => {
-      window.removeEventListener('mousemove', onMove)
-      window.removeEventListener('mouseup', onUp)
+
+    window.addEventListener('pointermove', onMove)
+    window.addEventListener('pointerup', onUp)
+    window.addEventListener('pointercancel', onUp)
+    s.raf = requestAnimationFrame(tick)
+  }
+
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    const p = propsRef.current
+    if (p.readOnly) return
+    const mod = e.ctrlKey || e.metaKey
+    const step = e.shiftKey ? 10 : 1
+    let handled = true
+
+    if (e.key === 'Delete' || e.key === 'Backspace') p.onDelete(asset.id)
+    else if (e.key === 'Escape') { p.onDeselect(); nodeRef.current?.blur() }
+    else if (mod && e.key === ']') p.onZ(asset.id, 'front')
+    else if (mod && e.key === '[') p.onZ(asset.id, 'back')
+    else if (!p.locked && e.key === 'ArrowLeft')  p.onNudge(asset.id, -step, 0)
+    else if (!p.locked && e.key === 'ArrowRight') p.onNudge(asset.id, step, 0)
+    else if (!p.locked && e.key === 'ArrowUp')    p.onNudge(asset.id, 0, -step)
+    else if (!p.locked && e.key === 'ArrowDown')  p.onNudge(asset.id, 0, step)
+    else handled = false
+
+    if (handled) {
+      e.preventDefault()
+      e.stopPropagation()
     }
-  }, [resizing, persistPos])
+  }
+
+  const editable = selected && !readOnly && !locked
 
   return (
     <div
-      id={`img-node-${assetId}`}
-      onMouseDown={() => setSelected(true)}
+      ref={nodeRef}
+      data-image-node={asset.id}
+      tabIndex={readOnly ? undefined : -1}
+      role="img"
+      aria-label={asset.file_name ?? 'Görsel'}
+      onPointerDown={e => begin(e, 'drag')}
+      onKeyDown={onKeyDown}
+      className={
+        'nf-img' +
+        (selected && !readOnly ? ' is-selected' : '') +
+        (locked ? ' is-locked' : '') +
+        (readOnly ? ' is-readonly' : '')
+      }
       style={{
-        position:   'absolute',
-        left:       pos.x,
-        top:        pos.y,
-        width:      pos.width,
-        height:     pos.height,
-        userSelect: 'none',
-        boxSizing:  'border-box',
-        border:     selected ? '2px solid #4D8DFF' : '2px solid transparent',
-        borderRadius: '4px',
-        transition: dragging || resizing ? 'none' : 'border-color 150ms',
-        cursor:     dragging ? 'grabbing' : 'default',
+        left: box.x,
+        top: box.y,
+        width: box.width,
+        height: box.height,
+        zIndex: z,
+        transform: box.rotation ? `rotate(${box.rotation}deg)` : undefined,
+        touchAction: selected && !readOnly ? 'none' : 'pan-y',
       }}
     >
-      {/* Image */}
       <img
         src={asset.storage_url}
         alt={asset.file_name ?? 'Görsel'}
         draggable={false}
-        style={{
-          width: '100%', height: '100%',
-          objectFit: 'cover', borderRadius: '2px', display: 'block',
+        style={{ opacity }}
+        onLoad={e => {
+          const img = e.currentTarget
+          if (img.naturalWidth > 0) props.onNaturalRatio(asset.id, img.naturalHeight / img.naturalWidth)
         }}
       />
 
-      {/* Overlay controls (visible when selected) */}
-      {selected && (
+      {editable && (
         <>
-          {/* Drag handle (top bar) */}
           <div
-            onMouseDown={onDragMouseDown}
-            title="Taşı"
-            style={{
-              position: 'absolute', top: 0, left: 0, right: 0,
-              height: '28px', cursor: 'grab',
-              backgroundColor: 'rgba(0,0,0,0.5)',
-              display: 'flex', alignItems: 'center', paddingLeft: '8px', gap: '6px',
-              borderRadius: '2px 2px 0 0',
-            }}
-          >
-            <GripVertical size={14} color="#aaa" />
-            <span style={{ fontSize: '11px', color: '#aaa', userSelect: 'none' }}>
-              {Math.round(pos.width)} × {Math.round(pos.height)}
-            </span>
-          </div>
-
-          {/* Delete button */}
-          <button
-            onMouseDown={e => { e.stopPropagation(); onDelete(assetId) }}
-            title="Görseli sil"
-            style={{
-              position: 'absolute', top: 4, right: 4,
-              width: 22, height: 22,
-              backgroundColor: 'rgba(220,50,50,0.85)',
-              border: 'none', borderRadius: '4px',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', color: '#fff',
-            }}
-          >
-            <Trash2 size={12} />
-          </button>
-
-          {/* Resize handles */}
+            className="nf-img-rot"
+            title="Döndür (Shift: 15° adım)"
+            onPointerDown={e => begin(e, 'rotate')}
+          />
           {HANDLES.map(h => (
             <div
               key={h}
-              onMouseDown={e => onResizeMouseDown(e, h)}
-              style={handleStyle(h)}
+              className={`nf-img-h nf-img-h--${h}`}
+              onPointerDown={e => begin(e, 'resize', h)}
             />
           ))}
         </>
+      )}
+
+      {selected && locked && !readOnly && (
+        <span className="nf-img-lock" title="Kilitli">
+          <Lock size={11} />
+        </span>
       )}
     </div>
   )
