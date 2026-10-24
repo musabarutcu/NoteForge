@@ -395,12 +395,12 @@ export function NoteEditorPage() {
     }
   }
 
-  /** Metin kutusunun dışındaki boş alana tıklama → o noktadan yazmaya başla */
+  /** Sayfada metin kutusunun dışındaki boş alana tıklama → o satırın başından yazmaya başla */
   const handleSurfaceMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     if (previewMode || !editor || editor.isDestroyed || e.button !== 0 || e.detail > 1) return
     const target = e.target as HTMLElement
-    // Yalnızca boş zemin: başlık, etiketler, görseller ve metnin kendisi hariç
-    if (target !== e.currentTarget && !target.classList.contains('editor-content')) return
+    // Yalnızca sayfanın boş kısmı: başlık, etiketler, görseller, metin ve sayfa dışı zemin hariç
+    if (!target.classList.contains('editor-content')) return
     if (e.clientY < editor.view.dom.getBoundingClientRect().top) return
     if (placeCaretAt(editor.view, e.clientX, e.clientY)) e.preventDefault()
   }

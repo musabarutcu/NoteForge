@@ -198,12 +198,13 @@ export const ImageCanvas = forwardRef<ImageCanvasHandle, ImageCanvasProps>(
       const parent = containerRef.current?.parentElement
       if (!parent) return
       const bottom = items.reduce((acc, i) => Math.max(acc, boundsOf(boxOf(i.pos)).bottom), 0)
-      parent.style.minHeight = items.length ? `${Math.ceil(bottom + BOTTOM_GAP)}px` : ''
+      if (items.length) parent.style.setProperty('--nf-images-min-h', `${Math.ceil(bottom + BOTTOM_GAP)}px`)
+      else parent.style.removeProperty('--nf-images-min-h')
     }, [items])
 
     useEffect(() => {
       const parent = containerRef.current?.parentElement
-      return () => { if (parent) parent.style.minHeight = '' }
+      return () => { parent?.style.removeProperty('--nf-images-min-h') }
     }, [])
 
     /* ─── Yükle + eski koordinatları dönüştür ──────────────── */

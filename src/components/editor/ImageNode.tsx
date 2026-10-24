@@ -32,7 +32,11 @@ interface ImageNodeProps {
 type Kind = 'drag' | 'resize' | 'rotate'
 
 /** Sürüklerken imleç kaydırma alanının kenarına bu kadar yaklaşınca otomatik kaydır. */
-const AUTOSCROLL_EDGE = 56
+const AUTOSCROLL_EDGE = 36
+/** Kenarda bu kadar bekleyince kaydırma başlar (yanlışlıkla kaymasın) */
+const AUTOSCROLL_DELAY = 350
+/** px/sn — kenarın en dibinde ulaşılan hız */
+const AUTOSCROLL_MAX_SPEED = 480
 const DRAG_THRESHOLD = 3
 
 export function ImageNode(props: ImageNodeProps) {
@@ -70,6 +74,10 @@ export function ImageNode(props: ImageNodeProps) {
       alt: e.altKey,
       moved: kind !== 'drag',
       raf: 0,
+      /** Kenar bölgesinde başlayan sürükleme, imleç oradan çıkana kadar kaydırmaz */
+      armed: false,
+      edgeSince: 0,
+      lastTick: 0,
     }
     if (s.moved) p.onInteract(true)
 
@@ -99,17 +107,37 @@ export function ImageNode(props: ImageNodeProps) {
       }
     }
 
-    const tick = () => {
+    const tick = (now: number) => {
+      const dt = s.lastTick ? Math.min(now - s.lastTick, 50) / 1000 : 0
+      s.lastTick = now
+
       if (scrollEl && s.moved && kind !== 'rotate') {
         const r = scrollEl.getBoundingClientRect()
-        let v = 0
-        if (s.lastY < r.top + AUTOSCROLL_EDGE) v = -(r.top + AUTOSCROLL_EDGE - s.lastY) / 3
-        else if (s.lastY > r.bottom - AUTOSCROLL_EDGE) v = (s.lastY - (r.bottom - AUTOSCROLL_EDGE)) / 3
-        v = Math.max(-24, Math.min(24, v))
-        if (Math.abs(v) >= 1) {
-          const before = scrollEl.scrollTop
-          scrollEl.scrollTop += v
-          if (scrollEl.scrollTop !== before) apply()
+        // Kenara ne kadar girildi (0..1); dir: -1 yukarı, 1 aşağı
+        let depth = 0
+        let dir = 0
+        if (s.lastY < r.top + AUTOSCROLL_EDGE) {
+          depth = (r.top + AUTOSCROLL_EDGE - s.lastY) / AUTOSCROLL_EDGE
+          dir = -1
+        } else if (s.lastY > r.bottom - AUTOSCROLL_EDGE) {
+          depth = (s.lastY - (r.bottom - AUTOSCROLL_EDGE)) / AUTOSCROLL_EDGE
+          dir = 1
+        }
+
+        if (!dir) {
+          s.armed = true
+          s.edgeSince = 0
+        } else if (s.armed) {
+          if (!s.edgeSince) s.edgeSince = now
+          if (now - s.edgeSince >= AUTOSCROLL_DELAY) {
+            const t = Math.min(1, depth)
+            const step = dir * AUTOSCROLL_MAX_SPEED * t * t * dt
+            if (Math.abs(step) >= 0.5) {
+              const before = scrollEl.scrollTop
+              scrollEl.scrollTop += step
+              if (scrollEl.scrollTop !== before) apply()
+            }
+          }
         }
       }
       s.raf = requestAnimationFrame(tick)
